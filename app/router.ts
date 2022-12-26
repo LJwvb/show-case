@@ -12,5 +12,6 @@ export default (app: Application) => {
   router.get('/getNoChkQuestions', controller.questions.getNoChkQuestions);
   router.post('/uploadQuestions', controller.questions.uploadQuestions);
   router.post('/chkQuestions', controller.questions.chkQuestions);
+  router.post('/deleteQuestions', controller.questions.deleteQuestions);
   router.get('/getRankingList', controller.rankingList.getRankingList);
 };

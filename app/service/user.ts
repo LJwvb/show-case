@@ -59,7 +59,6 @@ export default class User extends Service {
   // 更新用户信息
   public async updateUserInfo(params) {
     const { app } = this;
-    console.log(params, 'params');
     try {
       await app.mysql.update('user', params, {
         where: { phone: params.phone },

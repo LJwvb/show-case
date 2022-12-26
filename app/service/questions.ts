@@ -16,6 +16,7 @@ interface IChkQuestions {
   id: number | string; // 题目ID
   chkState?: 0 | 1 | 2; // 审核状态 0:未审核 1:审核通过 2:审核不通过
   chkUser?: string; // 审核人
+  creator?: string; // 创建人
   chkRemarks?: string; // 审核备注
   chkDate?: string; // 审核时间
   publishDate?: string; // 发布时间
@@ -61,7 +62,7 @@ export default class questions extends Service {
       const filterResult = result.filter((item: any) => item.chkState === 1);
       // 获取所有题目总数
       const count = await app.mysql.query(
-        `select count(*) as count from questions where subjectID = ${subjectID} and catalogID = ${catalogID}`,
+        `select count(*) as count from questions where subjectID = ${subjectID} and catalogID = ${catalogID}`
       );
       return {
         result: filterResult,
@@ -91,10 +92,34 @@ export default class questions extends Service {
   // 审核题目
   public async chkQuestions(params: IChkQuestions) {
     const { app } = this;
+    const { chkState, creator } = params;
     try {
       const result = await app.mysql.update('questions', params, {
         where: { id: params.id },
       });
+      // 审核通过则更新排行榜上传题目数量
+      if (chkState === 1) {
+        const rankList: any = await app.mysql.get('ranking_list', {
+          username: creator,
+        });
+        if (rankList) {
+          await app.mysql.update(
+            'ranking_list',
+            { upload_ques_num: rankList.upload_ques_num + 1 },
+            { where: { username: creator } },
+          );
+        }
+      }
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 删除题目
+  public async deleteQuestions(params) {
+    const { app } = this;
+    try {
+      const result = await app.mysql.delete('questions', params);
       return result;
     } catch (err) {
       return null;

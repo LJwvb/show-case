@@ -2,6 +2,7 @@ import { Controller } from 'egg';
 import { getNowFormatDate } from '../utils';
 
 export default class questions extends Controller {
+  // 获取审核后的题目
   public async getQuestions() {
     const { ctx } = this;
     const { currentPage, pageSize, subjectID, catalogID } = ctx.request.body;
@@ -18,6 +19,7 @@ export default class questions extends Controller {
       ctx.fail('获取题目失败~');
     }
   }
+  // 上传题目
   public async uploadQuestions() {
     const { ctx } = this;
     const {
@@ -56,7 +58,7 @@ export default class questions extends Controller {
       ctx.fail('上传失败,请重新上传~');
     }
   }
-
+  // 获取未审核题目
   public async getNoChkQuestions() {
     const { ctx } = this;
     const { currentPage, pageSize } = ctx.request.body;
@@ -73,7 +75,7 @@ export default class questions extends Controller {
   // 审核题目
   public async chkQuestions() {
     const { ctx } = this;
-    const { id, chkState, chkUser, chkRemarks } = ctx.request.body;
+    const { id, chkState, chkUser, chkRemarks, creator } = ctx.request.body;
     if (!id || !chkState) {
       ctx.fail('请填写完整信息~');
       return;
@@ -82,6 +84,7 @@ export default class questions extends Controller {
       id,
       chkState,
       chkUser,
+      creator,
       chkRemarks,
       chkDate: getNowFormatDate(),
       publishDate: getNowFormatDate(),
@@ -91,6 +94,23 @@ export default class questions extends Controller {
       ctx.success(null, '审核成功~');
     } else {
       ctx.fail('审核失败,请重新审核~');
+    }
+  }
+  // 删除题目
+  public async deleteQuestions() {
+    const { ctx } = this;
+    const { id } = ctx.request.body;
+    if (!id) {
+      ctx.fail('请填写完整信息~');
+      return;
+    }
+    const result = await ctx.service.questions.deleteQuestions({
+      id,
+    });
+    if (result) {
+      ctx.success(null, '删除成功~');
+    } else {
+      ctx.fail('删除失败,请重新删除~');
     }
   }
 }
