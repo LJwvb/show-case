@@ -6,11 +6,12 @@ export default class User extends Controller {
   public async login() {
     const { ctx } = this;
     const { password, phone } = ctx.request.body;
-    const data = await ctx.service.user.login({ password, phone });
     if (!phone || !password) {
       ctx.fail('账号密码不能为空');
       return;
     }
+    const data = await ctx.service.user.login({ password, phone });
+
     if (data) {
       await ctx.service.user.updateUserInfo({
         last_login_time: getNowFormatDate(),
@@ -61,6 +62,7 @@ export default class User extends Controller {
       ctx.fail('服务出错啦');
     }
   }
+  // 验证码
   public async captcha() {
     const { ctx } = this;
     const data = await ctx.service.user.captcha(ctx.request.body);

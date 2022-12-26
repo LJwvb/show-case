@@ -3,26 +3,26 @@ import { createMathExpr } from 'svg-captcha';
 import md5 from 'md5';
 
 interface LoginParams {
-  password: string;
-  phone: string;
+  password: string; // 密码
+  phone: string; // 手机号
 }
 interface RegisterParams {
-  username: string;
-  password: string;
-  phone: string;
-  sex: string;
-  email: string;
-  ctime: string;
-  avatar: string;
-  last_login_time: string;
+  username: string; // 用户名
+  password: string; // 密码
+  phone: string; // 手机号
+  sex: string; // 性别
+  email: string; // 邮箱
+  ctime: string; // 创建时间
+  avatar: string; // 头像
+  last_login_time: string; // 最后登录时间
 }
 interface CaptchaParams {
-  width?: number;
-  height?: number;
-  fontSize?: number;
-  noise?: number;
-  color?: boolean;
-  background?: string;
+  width: number; // 宽度
+  height: number; // 高度
+  fontSize?: number; // 字体大小
+  noise?: number; // 干扰线条的数量
+  color?: boolean; // 验证码的字符是否有颜色
+  background?: string; // 验证码图片背景颜色
 }
 
 export default class User extends Service {
