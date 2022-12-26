@@ -62,7 +62,7 @@ export default class questions extends Service {
       const filterResult = result.filter((item: any) => item.chkState === 1);
       // 获取所有题目总数
       const count = await app.mysql.query(
-        `select count(*) as count from questions where subjectID = ${subjectID} and catalogID = ${catalogID}`
+        `select count(*) as count from questions where subjectID = ${subjectID} and catalogID = ${catalogID}`,
       );
       return {
         result: filterResult,

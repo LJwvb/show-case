@@ -42,6 +42,13 @@ export default class User extends Service {
     const { app } = this;
     try {
       const result = await app.mysql.insert('user', params);
+      // 往排行榜中插入这一条数据
+      await app.mysql.insert('ranking_list', {
+        username: params.username,
+        avatar: params.avatar,
+        upload_ques_num: 0,
+        get_likes_num: 0,
+      });
       return result;
     } catch (err) {
       return null;
