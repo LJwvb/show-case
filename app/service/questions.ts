@@ -30,11 +30,11 @@ interface IUploadQuestions {
   answer: string; // 答案
   addDate: string; // 添加时间
   tags: string; // 标签
-  questionType: '单选题' | '多选题' | '判断题' | '填空题' | '简答题'; // 题目类型
+  questionType: 0 | 1 | 2 | 3 | 4; // 题目类型 0: '单选题' 1: '多选题' 2: '判断题' 3: '填空题'4: '简答题'
   remarks?: string; // 备注
   number?: number; // 试题编号
   direction: string; // 题目方向
-  difficulty: '简单' | '中等' | '困难'; // 难度
+  difficulty: 0 | 1 | 2; // 难度 0:'简单'1:'中等'2:'困难'
   isChoice?: 0 | 1; // 是否精选 0:否 1:是
   publishState?: 0 | 1 | 2; // 发布状态 0:未发布 1:已发布 2:已下架
   publishDate?: string; // 发布时间
@@ -84,7 +84,11 @@ export default class questions extends Service {
         offset,
         limit,
       });
-      return result;
+      // 获取所有未审核题目总数
+      const count = await app.mysql.query(
+        `select count(*) as count from questions where chkState = 0`
+      );
+      return { result, total: count[0].count };
     } catch (err) {
       return null;
     }
@@ -130,6 +134,19 @@ export default class questions extends Service {
     const { app } = this;
     try {
       const result = await app.mysql.insert('questions', params);
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 每日一题
+  public async getDailyQuestions() {
+    // 从所有已审核的题目中随机获取1道题目
+    const { app } = this;
+    try {
+      const result = await app.mysql.query(
+        'select * from questions where chkState = 1 order by rand() limit 1'
+      );
       return result;
     } catch (err) {
       return null;

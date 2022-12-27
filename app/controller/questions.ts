@@ -113,4 +113,14 @@ export default class questions extends Controller {
       ctx.fail('删除失败,请重新删除~');
     }
   }
+  // 每日一练
+  public async getDailyQuestions() {
+    const { ctx } = this;
+    const result = await ctx.service.questions.getDailyQuestions();
+    if (result) {
+      ctx.success(result, '请求成功');
+    } else {
+      ctx.fail('获取题目失败~');
+    }
+  }
 }
