@@ -29,7 +29,6 @@ export default class User extends Service {
   // 登录
   public async login(params: LoginParams) {
     const { app } = this;
-    console.log(params, 'params');
     try {
       const result = await app.mysql.get('user', params);
       return result;
@@ -74,6 +73,25 @@ export default class User extends Service {
       return null;
     }
   }
+  // 获取用户列表
+  public async getUserList(params) {
+    const { currentPage, pageSize } = params;
+    const offset = currentPage * pageSize;
+    const limit = pageSize;
+    const { app } = this;
+    try {
+      const result = await app.mysql.select('user', {
+        offset,
+        limit,
+      });
+
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  // 验证码
   public async captcha(params: CaptchaParams) {
     const {
       width,
@@ -102,5 +120,15 @@ export default class User extends Service {
       data,
       text: md5(text),
     };
+  }
+  // 管理员登录
+  public async adminLogin(params) {
+    const { app } = this;
+    try {
+      const result = await app.mysql.get('admin', params);
+      return result;
+    } catch (err) {
+      return null;
+    }
   }
 }

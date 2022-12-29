@@ -123,4 +123,57 @@ export default class questions extends Controller {
       ctx.fail('获取题目失败~');
     }
   }
+  // 点赞题目
+  public async likeQuestions() {
+    const { ctx } = this;
+    const { id, creator } = ctx.request.body;
+    if (!id || !creator) {
+      ctx.fail('请填写完整信息~');
+      return;
+    }
+    const result = await ctx.service.questions.likeQuestions({
+      id,
+      creator,
+    });
+    if (result) {
+      ctx.success(null, '点赞成功~');
+    } else {
+      ctx.fail('点赞失败,请重新点赞~');
+    }
+  }
+  // 取消点赞题目
+  public async cancelLikeQuestions() {
+    const { ctx } = this;
+    const { id, creator } = ctx.request.body;
+    if (!id || !creator) {
+      ctx.fail('请填写完整信息~');
+      return;
+    }
+    const result = await ctx.service.questions.cancelLikeQuestions({
+      id,
+      creator,
+    });
+    if (result) {
+      ctx.success(null, '取消点赞成功~');
+    } else {
+      ctx.fail('取消点赞失败,请重新取消点赞~');
+    }
+  }
+  // 浏览数
+  public async addBrowsesNum() {
+    const { ctx } = this;
+    const { id } = ctx.request.body;
+    if (!id) {
+      ctx.fail('请填写完整信息~');
+      return;
+    }
+    const result = await ctx.service.questions.addBrowsesNum({
+      id,
+    });
+    if (result) {
+      ctx.success(null, '');
+    } else {
+      ctx.fail('浏览失败,请重新浏览~');
+    }
+  }
 }

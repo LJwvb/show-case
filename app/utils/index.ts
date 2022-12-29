@@ -25,4 +25,18 @@ function getNowFormatDate() {
     date.getSeconds();
   return currentDate;
 }
-export { getNowFormatDate };
+
+// 去除密码
+function removePassword(data) {
+  const returnData = JSON.parse(
+    JSON.stringify(data, (key, value) => {
+      if (key === 'password') {
+        return undefined;
+      }
+      return value;
+    }),
+  );
+  return returnData;
+}
+
+export { getNowFormatDate, removePassword };

@@ -31,8 +31,23 @@ describe('test/app/service/Test.test.js', () => {
   //   });
   //   assert(result);
   // });
-  it('getDailyQuestions', async () => {
-    const result = await ctx.service.questions.getDailyQuestions();
+  // it('getDailyQuestions', async () => {
+  //   const result = await ctx.service.questions.getDailyQuestions();
+  //   assert(result);
+  // });
+  // it('updateUserInfo', async () => {
+  //   const result = await ctx.service.user.updateUserInfo({
+  //     phone: 1,
+  //     email: 1,
+  //   });
+  //   assert(result);
+  // });
+  it('getUserList', async () => {
+    const result = await ctx.service.user.getUserList({
+      currentPage: 1,
+      pageSize: 10,
+    });
     assert(result);
   });
+
 });

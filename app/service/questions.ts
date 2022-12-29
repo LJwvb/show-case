@@ -62,7 +62,7 @@ export default class questions extends Service {
       const filterResult = result.filter((item: any) => item.chkState === 1);
       // 获取所有题目总数
       const count = await app.mysql.query(
-        `select count(*) as count from questions where subjectID = ${subjectID} and catalogID = ${catalogID}`,
+        `select count(*) as count from questions where subjectID = ${subjectID} and catalogID = ${catalogID}`
       );
       return {
         result: filterResult,
@@ -86,7 +86,7 @@ export default class questions extends Service {
       });
       // 获取所有未审核题目总数
       const count = await app.mysql.query(
-        `select count(*) as count from questions where chkState = 0`
+        'select count(*) as count from questions where chkState = 0'
       );
       return { result, total: count[0].count };
     } catch (err) {
@@ -110,7 +110,7 @@ export default class questions extends Service {
           await app.mysql.update(
             'ranking_list',
             { upload_ques_num: rankList.upload_ques_num + 1 },
-            { where: { username: creator } },
+            { where: { username: creator } }
           );
         }
       }
@@ -124,6 +124,79 @@ export default class questions extends Service {
     const { app } = this;
     try {
       const result = await app.mysql.delete('questions', params);
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 点赞题目
+  public async likeQuestions(params) {
+    const { app } = this;
+    const { id, creator } = params;
+    try {
+      // 获取当前题目的点赞数量
+      const questions: any = await app.mysql.get('questions', { id });
+      const result = await app.mysql.update(
+        'questions',
+        { likes_num: questions.likes_num + 1 },
+        { where: { id } }
+      );
+      // 更新排行榜点赞数量
+      const rankList: any = await app.mysql.get('ranking_list', {
+        username: creator,
+      });
+      if (rankList) {
+        await app.mysql.update(
+          'ranking_list',
+          { get_likes_num: rankList.get_likes_num + 1 },
+          { where: { username: creator } }
+        );
+      }
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 取消点赞题目
+  public async cancelLikeQuestions(params) {
+    const { app } = this;
+    const { id, creator } = params;
+    try {
+      // 获取当前题目的点赞数量
+      const questions: any = await app.mysql.get('questions', { id });
+      const result = await app.mysql.update(
+        'questions',
+        { likes_num: questions.likes_num - 1 },
+        { where: { id } }
+      );
+      // 更新排行榜点赞数量
+      const rankList: any = await app.mysql.get('ranking_list', {
+        username: creator,
+      });
+      if (rankList) {
+        await app.mysql.update(
+          'ranking_list',
+          { get_likes_num: rankList.get_likes_num - 1 },
+          { where: { username: creator } }
+        );
+      }
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 浏览数
+  public async addBrowsesNum(params) {
+    const { app } = this;
+    const { id } = params;
+    try {
+      // 获取当前题目的浏览数量
+      const questions: any = await app.mysql.get('questions', { id });
+      const result = await app.mysql.update(
+        'questions',
+        { browses_num: questions.browses_num + 1 },
+        { where: { id } }
+      );
       return result;
     } catch (err) {
       return null;

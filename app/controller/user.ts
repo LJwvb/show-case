@@ -1,5 +1,5 @@
 import { Controller } from 'egg';
-import { getNowFormatDate } from '../utils';
+import { getNowFormatDate, removePassword } from '../utils';
 
 export default class User extends Controller {
   // 登录
@@ -18,14 +18,18 @@ export default class User extends Controller {
         phone,
       });
       // 去除密码
-      const returnData = JSON.parse(
-        JSON.stringify(data, (key, value) => {
-          if (key === 'password') {
-            return undefined;
-          }
-          return value;
-        }),
-      );
+      const returnData = removePassword(data);
+      ctx.success(returnData, '登录成功');
+    } else {
+      ctx.fail('账号或密码错误，登录失败');
+    }
+  }
+  // 管理员登录
+  public async adminLogin() {
+    const { ctx } = this;
+    const data = await ctx.service.user.adminLogin(ctx.request.body);
+    if (data) {
+      const returnData = removePassword(data);
       ctx.success(returnData, '登录成功');
     } else {
       ctx.fail('账号或密码错误，登录失败');
@@ -74,6 +78,41 @@ export default class User extends Controller {
       ctx.success(data);
     } else {
       ctx.fail('验证码生成失败');
+    }
+  }
+  // 编辑信息
+  public async updateUserInfo() {
+    const { ctx } = this;
+    const { username } = ctx.request.body;
+    const userInfo = await ctx.service.user.getUserByName(username);
+    if (userInfo) {
+      ctx.fail('用户名已存在');
+      return;
+    }
+
+    const result = await ctx.service.user.updateUserInfo(ctx.request.body);
+    if (result) {
+      ctx.success(null, '修改成功');
+    } else {
+      ctx.fail('修改失败');
+    }
+  }
+  // 获取用户列表
+  public async getUserList() {
+    const { ctx } = this;
+    const { currentPage, pageSize } = ctx.request.body;
+
+    const result = await ctx.service.user.getUserList({
+      currentPage,
+      pageSize,
+    });
+
+    if (result) {
+      // 去除密码
+      const returnData = removePassword(result);
+      ctx.success(returnData, '请求成功');
+    } else {
+      ctx.fail('获取用户列表失败');
     }
   }
 }
