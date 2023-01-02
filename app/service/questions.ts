@@ -62,7 +62,7 @@ export default class questions extends Service {
       const filterResult = result.filter((item: any) => item.chkState === 1);
       // 获取所有题目总数
       const count = await app.mysql.query(
-        `select count(*) as count from questions where subjectID = ${subjectID} and catalogID = ${catalogID}`
+        `select count(*) as count from questions where subjectID = ${subjectID} and catalogID = ${catalogID}`,
       );
       return {
         result: filterResult,
@@ -86,7 +86,7 @@ export default class questions extends Service {
       });
       // 获取所有未审核题目总数
       const count = await app.mysql.query(
-        'select count(*) as count from questions where chkState = 0'
+        'select count(*) as count from questions where chkState = 0',
       );
       return { result, total: count[0].count };
     } catch (err) {
@@ -110,7 +110,7 @@ export default class questions extends Service {
           await app.mysql.update(
             'ranking_list',
             { upload_ques_num: rankList.upload_ques_num + 1 },
-            { where: { username: creator } }
+            { where: { username: creator } },
           );
         }
       }
@@ -139,7 +139,7 @@ export default class questions extends Service {
       const result = await app.mysql.update(
         'questions',
         { likes_num: questions.likes_num + 1 },
-        { where: { id } }
+        { where: { id } },
       );
       // 更新排行榜点赞数量
       const rankList: any = await app.mysql.get('ranking_list', {
@@ -149,7 +149,7 @@ export default class questions extends Service {
         await app.mysql.update(
           'ranking_list',
           { get_likes_num: rankList.get_likes_num + 1 },
-          { where: { username: creator } }
+          { where: { username: creator } },
         );
       }
       return result;
@@ -167,7 +167,7 @@ export default class questions extends Service {
       const result = await app.mysql.update(
         'questions',
         { likes_num: questions.likes_num - 1 },
-        { where: { id } }
+        { where: { id } },
       );
       // 更新排行榜点赞数量
       const rankList: any = await app.mysql.get('ranking_list', {
@@ -177,7 +177,7 @@ export default class questions extends Service {
         await app.mysql.update(
           'ranking_list',
           { get_likes_num: rankList.get_likes_num - 1 },
-          { where: { username: creator } }
+          { where: { username: creator } },
         );
       }
       return result;
@@ -195,7 +195,7 @@ export default class questions extends Service {
       const result = await app.mysql.update(
         'questions',
         { browses_num: questions.browses_num + 1 },
-        { where: { id } }
+        { where: { id } },
       );
       return result;
     } catch (err) {
@@ -218,9 +218,44 @@ export default class questions extends Service {
     const { app } = this;
     try {
       const result = await app.mysql.query(
-        'select * from questions where chkState = 1 order by rand() limit 1'
+        'select * from questions where chkState = 1 order by rand() limit 1',
       );
       return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 组卷
+  public async getPaperQuestions(params) {
+    const { app } = this;
+    try {
+      const result = await app.mysql.insert('examination_paper', params);
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 获取组卷列表
+  public async getPaperQuestionsList(params) {
+    const { app } = this;
+    const { currentPage, pageSize, author } = params;
+    const offset = currentPage * pageSize;
+    const limit = pageSize;
+    try {
+      const result: any = await app.mysql.query(
+        `select * from examination_paper where author = '${author}' order by paper_id desc limit ${offset}, ${limit}`,
+      );
+      const ids = result.map((item: any) => item.ids);
+      const questions: any = [];
+      for (let i = 0; i < ids.length; i++) {
+        const item = ids[i];
+        const question = await app.mysql.query(
+          `select * from questions where id in (${item})`,
+        );
+        questions.push(question);
+      }
+
+      return { questions };
     } catch (err) {
       return null;
     }
