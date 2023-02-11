@@ -50,8 +50,11 @@ export default class questions extends Service {
       const result = await app.mysql.select('questions', {
         where: { subjectID, catalogID },
       });
-      // 去除未审核的题目
-      const filterResult = result.filter((item: any) => item.chkState === 1);
+      // 去除未审核的题目,把tags转换成数组
+      const filterResult = result.filter((item: any) => item?.chkState === 1);
+      filterResult.forEach((item:any) => {
+        item.tags = item?.tags?.split(',');
+      });
       // 获取所有题目总数
       const count = await app.mysql.query(
         `select count(*) as count from questions where subjectID = ${subjectID} and catalogID = ${catalogID}`,

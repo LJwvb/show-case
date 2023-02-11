@@ -93,7 +93,7 @@ export default class User extends Service {
       width,
       height,
       fontSize = 36,
-        noise = 4,
+      noise = 4,
       color = true,
       background,
     } = params;
