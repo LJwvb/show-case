@@ -61,11 +61,7 @@ export default class questions extends Controller {
   // 获取未审核题目
   public async getNoChkQuestions() {
     const { ctx } = this;
-    const { currentPage, pageSize } = ctx.request.body;
-    const result = await ctx.service.questions.getNoChkQuestions({
-      currentPage,
-      pageSize,
-    });
+    const result = await ctx.service.questions.getNoChkQuestions();
     if (result) {
       ctx.success(result, '请求成功');
     } else {

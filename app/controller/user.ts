@@ -100,12 +100,8 @@ export default class User extends Controller {
   // 获取用户列表
   public async getUserList() {
     const { ctx } = this;
-    const { currentPage, pageSize } = ctx.request.body;
 
-    const result = await ctx.service.user.getUserList({
-      currentPage,
-      pageSize,
-    });
+    const result = await ctx.service.user.getUserList();
 
     if (result) {
       // 去除密码
