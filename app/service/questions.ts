@@ -7,10 +7,6 @@ interface IQuestion {
   catalogID: number; // 章节ID
 }
 
-interface IGetNoChkQuestions {
-  currentPage: number; // 当前页
-  pageSize: number; // 每页条数
-}
 
 interface IChkQuestions {
   id: number | string; // 题目ID
@@ -49,14 +45,10 @@ export default class questions extends Service {
   // 获取题目
   public async getQuestions(params: IQuestion) {
     const { app } = this;
-    const { currentPage, pageSize, subjectID, catalogID } = params;
-    const offset = currentPage * pageSize;
-    const limit = pageSize;
+    const { subjectID, catalogID } = params;
     try {
       const result = await app.mysql.select('questions', {
         where: { subjectID, catalogID },
-        offset,
-        limit,
       });
       // 去除未审核的题目
       const filterResult = result.filter((item: any) => item.chkState === 1);
@@ -73,16 +65,11 @@ export default class questions extends Service {
     }
   }
   // 所有未审核的题目
-  public async getNoChkQuestions(params: IGetNoChkQuestions) {
-    const { currentPage, pageSize } = params;
-    const offset = currentPage * pageSize;
-    const limit = pageSize;
+  public async getNoChkQuestions() {
     const { app } = this;
     try {
       const result = await app.mysql.select('questions', {
         where: { chkState: 0 },
-        offset,
-        limit,
       });
       // 获取所有未审核题目总数
       const count = await app.mysql.query(
@@ -238,12 +225,10 @@ export default class questions extends Service {
   // 获取组卷列表
   public async getPaperQuestionsList(params) {
     const { app } = this;
-    const { currentPage, pageSize, author } = params;
-    const offset = currentPage * pageSize;
-    const limit = pageSize;
+    const { author } = params;
     try {
       const result: any = await app.mysql.query(
-        `select * from examination_paper where author = '${author}' order by paper_id desc limit ${offset}, ${limit}`,
+        `select * from examination_paper where author = '${author}' order by paper_id desc`,
       );
       const ids = result.map((item: any) => item.ids);
       const questions: any = [];

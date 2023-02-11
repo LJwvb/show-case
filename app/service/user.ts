@@ -74,16 +74,12 @@ export default class User extends Service {
     }
   }
   // 获取用户列表
-  public async getUserList(params) {
-    const { currentPage, pageSize } = params;
-    const offset = currentPage * pageSize;
-    const limit = pageSize;
+  public async getUserList() {
     const { app } = this;
+    // 新建长度为23的数组，用来存放用户信息
+
     try {
-      const result = await app.mysql.select('user', {
-        offset,
-        limit,
-      });
+      const result = await app.mysql.select('user');
 
       return result;
     } catch (err) {
@@ -97,7 +93,7 @@ export default class User extends Service {
       width,
       height,
       fontSize = 36,
-      noise = 4,
+        noise = 4,
       color = true,
       background,
     } = params;
