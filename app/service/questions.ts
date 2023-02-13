@@ -7,7 +7,6 @@ interface IQuestion {
   catalogID: number; // 章节ID
 }
 
-
 interface IChkQuestions {
   id: number | string; // 题目ID
   chkState?: 0 | 1 | 2; // 审核状态 0:未审核 1:审核通过 2:审核不通过
@@ -47,12 +46,32 @@ export default class questions extends Service {
     const { app } = this;
     const { subjectID, catalogID } = params;
     try {
+      if (subjectID === -1) {
+        const result = await app.mysql.select('questions', {
+          where: { catalogID },
+        });
+        // 去除未审核的题目,把tags转换成数组
+        // const filterResult = result.filter((item: any) => item?.chkState === 1);
+        result.forEach((item: any) => {
+          item.tags = item?.tags?.split(',');
+        });
+
+        console.log(result);
+        // 获取所有题目总数
+        const count = await app.mysql.query(
+          `select count(*) as count from questions where catalogID = ${catalogID}`,
+        );
+        return {
+          result,
+          total: count[0].count,
+        };
+      }
       const result = await app.mysql.select('questions', {
         where: { subjectID, catalogID },
       });
       // 去除未审核的题目,把tags转换成数组
       const filterResult = result.filter((item: any) => item?.chkState === 1);
-      filterResult.forEach((item:any) => {
+      filterResult.forEach((item: any) => {
         item.tags = item?.tags?.split(',');
       });
       // 获取所有题目总数
