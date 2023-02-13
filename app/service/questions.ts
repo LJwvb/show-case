@@ -67,6 +67,17 @@ export default class questions extends Service {
       return null;
     }
   }
+  // 题目详情
+  public async getQuestionDetail(params) {
+    const { app } = this;
+    const { id } = params;
+    try {
+      const result = await app.mysql.get('questions', { id });
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
   // 所有未审核的题目
   public async getNoChkQuestions() {
     const { app } = this;

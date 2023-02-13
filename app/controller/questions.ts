@@ -19,6 +19,21 @@ export default class questions extends Controller {
       ctx.fail('获取题目失败~');
     }
   }
+  // 题目详情
+  public async getQuestionDetail() {
+    const { ctx } = this;
+    const { id } = ctx.request.body;
+    if (!id) {
+      ctx.fail('题目id不能为空');
+      return;
+    }
+    const result = await ctx.service.questions.getQuestionDetail({ id });
+    if (result) {
+      ctx.success(result, '请求成功');
+    } else {
+      ctx.fail('获取题目失败~');
+    }
+  }
   // 上传题目
   public async uploadQuestions() {
     const { ctx } = this;

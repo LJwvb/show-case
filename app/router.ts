@@ -18,6 +18,8 @@ export default (app: Application) => {
   router.post('/adminLogin', controller.user.adminLogin);
   // 题目列表
   router.post('/getQuestions', controller.questions.getQuestions);
+  // 获取题目详情
+  router.post('/getQuestionDetail', controller.questions.getQuestionDetail);
   // 获取未审核的题目
   router.get('/getNoChkQuestions', controller.questions.getNoChkQuestions);
   // 上传题目
