@@ -152,7 +152,7 @@ export default class questions extends Service {
   // 点赞题目
   public async likeQuestions(params) {
     const { app } = this;
-    const { id, creator } = params;
+    const { id, creator, username } = params;
     try {
       // 获取当前题目的点赞数量
       const questions: any = await app.mysql.get('questions', { id });
@@ -165,6 +165,16 @@ export default class questions extends Service {
       const rankList: any = await app.mysql.get('ranking_list', {
         username: creator,
       });
+      // 获取之前点赞的题目id
+      const user: any = await app.mysql.get('user', { username });
+      const likeTopicsId = user?.likeTopicsId?.split(',');
+      likeTopicsId.push(id);
+      const idStr = likeTopicsId.join(',');
+      await app.mysql.update(
+        'user',
+        { likeTopicsId: idStr },
+        { where: { username } },
+      );
       if (rankList) {
         await app.mysql.update(
           'ranking_list',
@@ -180,7 +190,7 @@ export default class questions extends Service {
   // 取消点赞题目
   public async cancelLikeQuestions(params) {
     const { app } = this;
-    const { id, creator } = params;
+    const { id, creator, username } = params;
     try {
       // 获取当前题目的点赞数量
       const questions: any = await app.mysql.get('questions', { id });
@@ -189,6 +199,18 @@ export default class questions extends Service {
         { likes_num: questions.likes_num - 1 },
         { where: { id } },
       );
+      // 更新用户点赞的题目id
+      const user: any = await app.mysql.get('user', { username });
+      const likeTopicsId = user?.likeTopicsId?.split(',');
+      const index = likeTopicsId.indexOf(id);
+      likeTopicsId.splice(index, 1);
+      const idStr = likeTopicsId.join(',');
+      await app.mysql.update(
+        'user',
+        { likeTopicsId: idStr },
+        { where: { username } },
+      );
+
       // 更新排行榜点赞数量
       const rankList: any = await app.mysql.get('ranking_list', {
         username: creator,

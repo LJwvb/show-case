@@ -137,14 +137,15 @@ export default class questions extends Controller {
   // 点赞题目
   public async likeQuestions() {
     const { ctx } = this;
-    const { id, creator } = ctx.request.body;
-    if (!id || !creator) {
+    const { id, creator, username } = ctx.request.body;
+    if (!id || !creator || !username) {
       ctx.fail('请填写完整信息~');
       return;
     }
     const result = await ctx.service.questions.likeQuestions({
       id,
       creator,
+      username,
     });
     if (result) {
       ctx.success(null, '点赞成功~');
@@ -155,14 +156,15 @@ export default class questions extends Controller {
   // 取消点赞题目
   public async cancelLikeQuestions() {
     const { ctx } = this;
-    const { id, creator } = ctx.request.body;
-    if (!id || !creator) {
+    const { id, creator, username } = ctx.request.body;
+    if (!id || !creator || !username) {
       ctx.fail('请填写完整信息~');
       return;
     }
     const result = await ctx.service.questions.cancelLikeQuestions({
       id,
       creator,
+      username,
     });
     if (result) {
       ctx.success(null, '取消点赞成功~');
