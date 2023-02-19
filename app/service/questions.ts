@@ -309,11 +309,12 @@ export default class questions extends Service {
   // 相似题目
   public async getSimilarQuestions(params) {
     const { app } = this;
-    const { question } = params;
+    const { id } = params;
     try {
       const result: any = await app.mysql.query(
         'select * from questions where chkState = 1',
       );
+      const question = result.find((item: any) => item.id === id)?.question;
       const questions = result.map((item: any) => {
         return {
           id: item.id,
@@ -328,7 +329,10 @@ export default class questions extends Service {
       for (let i = 0; i < questions.length; i++) {
         const item = questions[i];
         const similar = await compareTwoStrings(question, item?.question);
-        if (similar > 0.4) {
+        if (similar === 1) {
+          continue;
+        }
+        if (similar > 0.1) {
           similarQuestions.push(item);
         }
       }

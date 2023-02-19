@@ -237,9 +237,9 @@ export default class questions extends Controller {
   // 相似题目
   public async getSimilarQuestions() {
     const { ctx } = this;
-    const { question } = ctx.request.body;
+    const { id } = ctx.request.body;
     const result = await ctx.service.questions.getSimilarQuestions({
-      question,
+      id,
     });
     if (result) {
       ctx.success(result, '请求成功');

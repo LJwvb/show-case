@@ -51,7 +51,7 @@ describe('test/app/service/Test.test.js', () => {
   // });
   it('getSimilarQuestions', async () => {
     const result = await ctx.service.questions.getSimilarQuestions({
-      question: '下列关于计算机网络的说法，正确的是（）',
+      id: 54,
     });
     console.log(result);
     assert(result);
