@@ -78,6 +78,9 @@ export default class questions extends Service {
       // 去除未审核的题目,把tags转换成数组
       const filterResult = result.filter((item: any) => item?.chkState === 1);
       filterResult.forEach((item: any) => {
+        if (item?.isChoice === 1) {
+          item.catalogID = 2;
+        }
         item.tags = item?.tags?.split(',');
       });
       // 获取所有题目总数
@@ -315,6 +318,7 @@ export default class questions extends Service {
         'select * from questions where chkState = 1',
       );
       const question = result.find((item: any) => item.id === id)?.question;
+      console.log(question);
       const questions = result.map((item: any) => {
         return {
           id: item.id,
@@ -322,6 +326,7 @@ export default class questions extends Service {
           catalogID: item.catalogID,
           question: item.question,
           difficulty: item.difficulty,
+          questionType: item.questionType,
         };
       });
 
