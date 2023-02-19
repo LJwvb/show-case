@@ -70,6 +70,27 @@ export default class questions extends Service {
           total: count[0].count,
         };
       }
+      if (catalogID === 2) {
+        const result = await app.mysql.select('questions', {
+          where: { subjectID, isChoice: 1 },
+          limit: pageSize,
+          offset: currentPage,
+        });
+        // 去除未审核的题目,把tags转换成数组
+        const filterResult = result.filter((item: any) => item?.chkState === 1);
+        filterResult.forEach((item: any) => {
+          item.tags = item?.tags?.split(',');
+        },
+        );
+        // 获取所有题目总数
+        const count = await app.mysql.query(
+          `select count(*) as count from questions where subjectID = ${subjectID} and isChoice = 1`,
+        );
+        return {
+          result: filterResult,
+          total: count[0].count - filterResult.length,
+        };
+      }
       const result = await app.mysql.select('questions', {
         where: { subjectID, catalogID },
         limit: pageSize,
@@ -78,9 +99,6 @@ export default class questions extends Service {
       // 去除未审核的题目,把tags转换成数组
       const filterResult = result.filter((item: any) => item?.chkState === 1);
       filterResult.forEach((item: any) => {
-        if (item?.isChoice === 1) {
-          item.catalogID = 2;
-        }
         item.tags = item?.tags?.split(',');
       });
       // 获取所有题目总数
