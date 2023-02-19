@@ -234,4 +234,17 @@ export default class questions extends Controller {
       ctx.fail('获取题目失败~');
     }
   }
+  // 相似题目
+  public async getSimilarQuestions() {
+    const { ctx } = this;
+    const { question } = ctx.request.body;
+    const result = await ctx.service.questions.getSimilarQuestions({
+      question,
+    });
+    if (result) {
+      ctx.success(result, '请求成功');
+    } else {
+      ctx.fail('获取题目失败~');
+    }
+  }
 }

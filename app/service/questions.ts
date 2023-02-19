@@ -1,4 +1,5 @@
 import { Service } from 'egg';
+import { compareTwoStrings } from 'string-similarity';
 
 interface IQuestion {
   currentPage: number; // 当前页
@@ -44,11 +45,14 @@ export default class questions extends Service {
   // 获取题目
   public async getQuestions(params: IQuestion) {
     const { app } = this;
-    const { subjectID, catalogID } = params;
+    const { subjectID, catalogID, currentPage, pageSize } = params;
+
     try {
       if (subjectID === -1) {
         const result = await app.mysql.select('questions', {
           where: { catalogID },
+          limit: pageSize,
+          offset: currentPage,
         });
         // 去除未审核的题目,把tags转换成数组
         // const filterResult = result.filter((item: any) => item?.chkState === 1);
@@ -68,6 +72,8 @@ export default class questions extends Service {
       }
       const result = await app.mysql.select('questions', {
         where: { subjectID, catalogID },
+        limit: pageSize,
+        offset: currentPage,
       });
       // 去除未审核的题目,把tags转换成数组
       const filterResult = result.filter((item: any) => item?.chkState === 1);
@@ -296,6 +302,43 @@ export default class questions extends Service {
       }
 
       return { questions };
+    } catch (err) {
+      return null;
+    }
+  }
+  // 相似题目
+  public async getSimilarQuestions(params) {
+    const { app } = this;
+    const { question } = params;
+    try {
+      const result: any = await app.mysql.query(
+        'select * from questions where chkState = 1',
+      );
+      const questions = result.map((item: any) => {
+        return {
+          id: item.id,
+          subjectID: item.subjectID,
+          catalogID: item.catalogID,
+          question: item.question,
+          difficulty: item.difficulty,
+        };
+      });
+
+      const similarQuestions: any = [];
+      for (let i = 0; i < questions.length; i++) {
+        const item = questions[i];
+        const similar = await compareTwoStrings(question, item?.question);
+        if (similar > 0.4) {
+          similarQuestions.push(item);
+        }
+      }
+
+      // 如果有多条，随机打乱返回两条
+      if (similarQuestions.length > 2) {
+        similarQuestions.sort(() => Math.random() - 0.5);
+        return similarQuestions.slice(0, 2);
+      }
+      return similarQuestions;
     } catch (err) {
       return null;
     }

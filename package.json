@@ -27,6 +27,7 @@
     "egg-mysql": "^3.3.0",
     "egg-scripts": "^2.6.0",
     "md5": "^2.3.0",
+    "string-similarity": "^4.0.4",
     "svg-captcha": "^1.4.0"
   },
   "devDependencies": {

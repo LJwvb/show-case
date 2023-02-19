@@ -42,11 +42,18 @@ describe('test/app/service/Test.test.js', () => {
   //   });
   //   assert(result);
   // });
-  it('getUserList', async () => {
-    const result = await ctx.service.user.getUserList({
-      currentPage: 1,
-      pageSize: 10,
+  // it('getUserList', async () => {
+  //   const result = await ctx.service.user.getUserList({
+  //     currentPage: 1,
+  //     pageSize: 10,
+  //   });
+  //   assert(result);
+  // });
+  it('getSimilarQuestions', async () => {
+    const result = await ctx.service.questions.getSimilarQuestions({
+      question: '下列关于计算机网络的说法，正确的是（）',
     });
+    console.log(result);
     assert(result);
   });
 

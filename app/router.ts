@@ -42,4 +42,6 @@ export default (app: Application) => {
   router.post('/getPaperQuestions', controller.questions.getPaperQuestions);
   // 试卷列表
   router.post('/getPaperQuestionsList', controller.questions.getPaperQuestionsList);
+  // 相似题目
+  router.post('/getSimilarQuestions', controller.questions.getSimilarQuestions);
 };
