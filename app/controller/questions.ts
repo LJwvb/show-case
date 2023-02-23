@@ -5,13 +5,8 @@ export default class questions extends Controller {
   // 获取审核后的题目
   public async getQuestions() {
     const { ctx } = this;
-    const { currentPage, pageSize, subjectID, catalogID } = ctx.request.body;
-    const result = await ctx.service.questions.getQuestions({
-      currentPage,
-      pageSize,
-      subjectID,
-      catalogID,
-    });
+    const { type } = ctx.request.body;
+    const result = await ctx.service.questions.getQuestions({ type });
 
     if (result) {
       ctx.success(result, '请求成功');
