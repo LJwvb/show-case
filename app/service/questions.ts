@@ -119,6 +119,10 @@ export default class questions extends Service {
           catalogList.forEach((cat: any) => {
             const { questionList } = cat;
             const randomList:any = [];
+            if (questionList.length <= 3) {
+              cat.questionList = questionList;
+              return;
+            }
             for (let i = 0; i < 3; i++) {
               const randomIndex = Math.floor(Math.random() * questionList.length);
               randomList.push(questionList[randomIndex]);
