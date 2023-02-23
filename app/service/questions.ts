@@ -130,7 +130,10 @@ export default class questions extends Service {
       }
       // 根据科目ID排序
       subjectList.sort((a: any, b: any) => a.subject.subjectID - b.subject.subjectID);
-
+      // 根据章节ID排序
+      subjectList.forEach((item: any) => {
+        item.catalogList.sort((a: any, b: any) => a.catalog.catalogID - b.catalog.catalogID);
+      });
 
       return {
         result: subjectList,
