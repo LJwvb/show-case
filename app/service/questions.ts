@@ -128,6 +128,8 @@ export default class questions extends Service {
           });
         });
       }
+      // 根据科目ID排序
+      subjectList.sort((a: any, b: any) => a.subject.subjectID - b.subject.subjectID);
 
 
       return {
