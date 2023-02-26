@@ -33,23 +33,17 @@ export default class questions extends Controller {
   public async uploadQuestions() {
     const { ctx } = this;
     const {
-      subjectID,
-      catalogID,
       question,
       answer,
       tags,
       questionType,
-      direction,
       difficulty,
     } = ctx.request.body;
     if (
-      !subjectID ||
-      !catalogID ||
       !question ||
       !answer ||
       !tags ||
       !questionType ||
-      !direction ||
       !difficulty
     ) {
       ctx.fail('请填写完整信息~');
@@ -61,6 +55,7 @@ export default class questions extends Controller {
       chkState: 0,
       isChoice: 0,
       publishState: 0,
+      catalogID: 0, // 最新
     });
     if (result) {
       ctx.success(null, '上传成功,请等待审核~');

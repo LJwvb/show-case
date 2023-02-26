@@ -3,7 +3,7 @@ import { compareTwoStrings } from 'string-similarity';
 import { getSubjectName, getCatalogName } from '../utils';
 
 interface IQuestion {
-  type?: 'all' ; // all:全部
+  type?: 'all'; // all:全部
 }
 
 interface IChkQuestions {
@@ -49,8 +49,22 @@ export default class questions extends Service {
       const result = await app.mysql.select('questions');
       // 去除未审核的题目,把tags转换成数组
       const filterResult = result.filter((item: any) => item?.chkState === 1);
-      filterResult.forEach((item: any) => {
+      filterResult.forEach(async (item: any) => {
         item.tags = item?.tags?.split(',');
+        if (item?.browses_num > 10 && item?.catalogID === 0) {
+          item.catalogID = 1;
+          await app.mysql.update(
+            'questions',
+            {
+              catalogID: 1,
+            },
+            {
+              where: {
+                id: item.id,
+              },
+            },
+          );
+        }
       });
 
       const subjectList: any = [];
@@ -94,9 +108,9 @@ export default class questions extends Service {
             ],
           });
         } else {
-          const catalogIndex = subjectList[
-            subjectIndex
-          ].catalogList.findIndex((cat: any) => cat.catalog.catalogID === catalogID);
+          const catalogIndex = subjectList[subjectIndex].catalogList.findIndex(
+            (cat: any) => cat.catalog.catalogID === catalogID,
+          );
           if (catalogIndex === -1) {
             subjectList[subjectIndex].catalogList.push({
               catalog: {
@@ -113,30 +127,25 @@ export default class questions extends Service {
         }
       });
       if (type !== 'all') {
-        // 每个科目下返回3个随机题目
+        // 每个科目下返回3个题目
         subjectList.forEach((item: any) => {
           const { catalogList } = item;
           catalogList.forEach((cat: any) => {
             const { questionList } = cat;
-            const randomList:any = [];
-            if (questionList.length <= 3) {
-              cat.questionList = questionList;
-              return;
-            }
-            for (let i = 0; i < 3; i++) {
-              const randomIndex = Math.floor(Math.random() * questionList.length);
-              randomList.push(questionList[randomIndex]);
-              questionList.splice(randomIndex, 1);
-            }
-            cat.questionList = randomList;
+            cat.questionList = questionList.slice(0, 3);
           });
+
         });
       }
       // 根据科目ID排序
-      subjectList.sort((a: any, b: any) => a.subject.subjectID - b.subject.subjectID);
+      subjectList.sort(
+        (a: any, b: any) => a.subject.subjectID - b.subject.subjectID,
+      );
       // 根据章节ID排序
       subjectList.forEach((item: any) => {
-        item.catalogList.sort((a: any, b: any) => a.catalog.catalogID - b.catalog.catalogID);
+        item.catalogList.sort(
+          (a: any, b: any) => a.catalog.catalogID - b.catalog.catalogID,
+        );
       });
 
       return {
