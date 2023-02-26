@@ -165,13 +165,14 @@ export default class questions extends Controller {
   // 浏览数
   public async addBrowsesNum() {
     const { ctx } = this;
-    const { id } = ctx.request.body;
+    const { id, username } = ctx.request.body;
     if (!id) {
       ctx.fail('请填写完整信息~');
       return;
     }
     const result = await ctx.service.questions.addBrowsesNum({
       id,
+      username,
     });
     if (result) {
       ctx.success(null, '');
