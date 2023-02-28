@@ -35,14 +35,12 @@ export default class questions extends Controller {
     const {
       question,
       answer,
-      tags,
       questionType,
       difficulty,
     } = ctx.request.body;
     if (
       !question ||
       !answer ||
-      !tags ||
       !questionType ||
       !difficulty
     ) {
