@@ -5,8 +5,7 @@ export default class questions extends Controller {
   // 获取审核后的题目
   public async getQuestions() {
     const { ctx } = this;
-    const { type } = ctx.request.body;
-    const result = await ctx.service.questions.getQuestions({ type });
+    const result = await ctx.service.questions.getQuestions(ctx.request.body);
 
     if (result) {
       ctx.success(result, '请求成功');
@@ -32,18 +31,8 @@ export default class questions extends Controller {
   // 上传题目
   public async uploadQuestions() {
     const { ctx } = this;
-    const {
-      question,
-      answer,
-      questionType,
-      difficulty,
-    } = ctx.request.body;
-    if (
-      !question ||
-      !answer ||
-      !questionType ||
-      !difficulty
-    ) {
+    const { question, answer, questionType, difficulty } = ctx.request.body;
+    if (!question || !answer || !questionType || !difficulty) {
       ctx.fail('请填写完整信息~');
       return;
     }
@@ -229,6 +218,21 @@ export default class questions extends Controller {
     const { id } = ctx.request.body;
     const result = await ctx.service.questions.getSimilarQuestions({
       id,
+    });
+    if (result) {
+      ctx.success(result, '请求成功');
+    } else {
+      ctx.fail('获取题目失败~');
+    }
+  }
+  // 搜索题目
+  public async searchQuestions() {
+    const { ctx } = this;
+    const { keyword, questionType, difficulty } = ctx.request.body;
+    const result = await ctx.service.questions.searchQuestions({
+      keyword,
+      questionType,
+      difficulty,
     });
     if (result) {
       ctx.success(result, '请求成功');

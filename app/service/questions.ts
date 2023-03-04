@@ -4,6 +4,10 @@ import { getSubjectName, getCatalogName } from '../utils';
 
 interface IQuestion {
   type?: 'all'; // all:全部
+  currentPage: number; // 当前页
+  pageSize: number; // 每页条数
+  catalogID: number; // 章节ID
+  refresh?: boolean; // 是否刷新
 }
 
 interface IChkQuestions {
@@ -43,90 +47,147 @@ export default class questions extends Service {
   // 获取题目
   public async getQuestions(params: IQuestion) {
     const { app } = this;
-    const { type } = params;
-
+    const { type, currentPage, pageSize, catalogID, refresh } = params;
     try {
-      const result = await app.mysql.select('questions');
-      // 去除未审核的题目,把tags转换成数组
-      const filterResult = result.filter((item: any) => item?.chkState === 1);
-      filterResult.forEach(async (item: any) => {
-        item.tags = item?.tags?.split(',');
-        if (item?.browses_num > 10 && item?.catalogID === 0) {
-          item.catalogID = 1;
-          await app.mysql.update(
-            'questions',
-            {
-              catalogID: 1,
-            },
-            {
-              where: {
-                id: item.id,
-              },
-            },
-          );
-        }
-      });
-
       const subjectList: any = [];
-      filterResult.forEach((item: any) => {
-        const { subjectID, catalogID } = item;
-        // 如果是全部题目，根据catalogID进行分类
-        if (type === 'all') {
-          const catalogIndex = subjectList.findIndex(
-            (cat: any) => cat.catalog.catalogID === catalogID,
-          );
-          if (catalogIndex === -1) {
-            subjectList.push({
-              catalog: {
-                catalogID,
-                catalogName: getCatalogName(catalogID),
+      const allSubjectList: any = [];
+
+      if (type === 'all') {
+        const result = await app.mysql.select('questions', {
+          where: {
+            catalogID,
+          },
+          limit: pageSize,
+          offset: (currentPage - 1) * pageSize,
+        });
+        const filterResult = result.filter((item: any) => item?.chkState === 1);
+        filterResult.forEach(async (item: any) => {
+          item.tags = item?.tags?.split(',');
+          if (item?.browses_num > 10 && item?.catalogID === 0) {
+            item.catalogID = 1;
+            await app.mysql.update(
+              'questions',
+              {
+                catalogID: 1,
               },
-              questionList: [ item ],
+              {
+                where: {
+                  id: item.id,
+                },
+              },
+            );
+          }
+        });
+        const allQuestionList = refresh
+          ? filterResult
+            .filter((item: any) => item?.catalogID === 0)
+            .sort(() => Math.random() - 0.5)
+          : filterResult.filter((item: any) => item?.catalogID === 0);
+        const allQuestionList1 = refresh ? filterResult.filter(
+          (item: any) => item?.catalogID === 1,
+        ).sort(() => Math.random() - 0.5) : filterResult.filter(
+          (item: any) => item?.catalogID === 1,
+        );
+        const allQuestionList2 = refresh ? filterResult.filter(
+          (item: any) => item?.catalogID === 2,
+        ).sort(() => Math.random() - 0.5) : filterResult.filter(
+          (item: any) => item?.catalogID === 2,
+        );
+        allSubjectList.push({
+          list: [
+            {
+              catalog: {
+                catalogID: 0,
+                catalogName: '最新',
+              },
+              questionList: allQuestionList,
+            },
+            {
+              catalog: {
+                catalogID: 1,
+                catalogName: '最热',
+              },
+              questionList: allQuestionList1,
+            },
+            {
+              catalog: {
+                catalogID: 2,
+                catalogName: '精选',
+              },
+              questionList: allQuestionList2,
+            },
+          ],
+        });
+        return {
+          result: allSubjectList[0],
+        };
+      }
+
+      if (type !== 'all') {
+        const result = await app.mysql.select('questions');
+        // 去除未审核的题目,把tags转换成数组
+        const filterResult = result.filter((item: any) => item?.chkState === 1);
+        filterResult.forEach(async (item: any) => {
+          item.tags = item?.tags?.split(',');
+          if (item?.browses_num > 10 && item?.catalogID === 0) {
+            item.catalogID = 1;
+            await app.mysql.update(
+              'questions',
+              {
+                catalogID: 1,
+              },
+              {
+                where: {
+                  id: item.id,
+                },
+              },
+            );
+          }
+        });
+        filterResult.forEach((item: any) => {
+          const { subjectID, catalogID } = item;
+          // 如果是全部题目，题目中catalogID为0的所有题目都组合为一个章节
+
+          const subjectIndex = subjectList.findIndex(
+            (sub: any) => sub.subject.subjectID === subjectID,
+          );
+          if (subjectIndex === -1) {
+            subjectList.push({
+              subject: {
+                subjectID,
+                subjectName: getSubjectName(subjectID),
+              },
+              catalogList: [
+                {
+                  catalog: {
+                    catalogID,
+                    catalogName: getCatalogName(catalogID),
+                  },
+                  questionList: [ item ],
+                },
+              ],
             });
           } else {
-            subjectList[catalogIndex].questionList.push(item);
-          }
-          return;
-        }
-        const subjectIndex = subjectList.findIndex(
-          (sub: any) => sub.subject.subjectID === subjectID,
-        );
-        if (subjectIndex === -1) {
-          subjectList.push({
-            subject: {
-              subjectID,
-              subjectName: getSubjectName(subjectID),
-            },
-            catalogList: [
-              {
+            const catalogIndex = subjectList[
+              subjectIndex
+            ].catalogList.findIndex(
+              (cat: any) => cat.catalog.catalogID === catalogID,
+            );
+            if (catalogIndex === -1) {
+              subjectList[subjectIndex].catalogList.push({
                 catalog: {
                   catalogID,
                   catalogName: getCatalogName(catalogID),
                 },
                 questionList: [ item ],
-              },
-            ],
-          });
-        } else {
-          const catalogIndex = subjectList[subjectIndex].catalogList.findIndex(
-            (cat: any) => cat.catalog.catalogID === catalogID,
-          );
-          if (catalogIndex === -1) {
-            subjectList[subjectIndex].catalogList.push({
-              catalog: {
-                catalogID,
-                catalogName: getCatalogName(catalogID),
-              },
-              questionList: [ item ],
-            });
-          } else {
-            subjectList[subjectIndex].catalogList[
-              catalogIndex
-            ].questionList.push(item);
+              });
+            } else {
+              subjectList[subjectIndex].catalogList[
+                catalogIndex
+              ].questionList.push(item);
+            }
           }
-        }
-      });
-      if (type !== 'all') {
+        });
         // 每个科目下返回3个题目
         subjectList.forEach((item: any) => {
           const { catalogList } = item;
@@ -135,21 +196,20 @@ export default class questions extends Service {
             cat.questionList = questionList.slice(0, 3);
           });
         });
-      }
-      // 根据科目ID排序
-      subjectList.sort(
-        (a: any, b: any) => a.subject.subjectID - b.subject.subjectID,
-      );
-      // 根据章节ID排序
-      subjectList.forEach((item: any) => {
-        item.catalogList.sort(
-          (a: any, b: any) => a.catalog.catalogID - b.catalog.catalogID,
+        // 根据科目ID排序
+        subjectList.sort(
+          (a: any, b: any) => a.subject.subjectID - b.subject.subjectID,
         );
-      });
-
-      return {
-        result: subjectList,
-      };
+        // 根据章节ID排序
+        subjectList.forEach((item: any) => {
+          item.catalogList.sort(
+            (a: any, b: any) => a.catalog.catalogID - b.catalog.catalogID,
+          );
+        });
+        return {
+          result: subjectList,
+        };
+      }
     } catch (err) {
       return null;
     }
@@ -419,6 +479,64 @@ export default class questions extends Service {
         return similarQuestions.slice(0, 2);
       }
       return similarQuestions;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 搜索题目
+  public async searchQuestions(params) {
+    const { app } = this;
+    const { keyword, questionType, difficulty } = params;
+    try {
+      // 只有关键字
+      if (keyword && !questionType && !difficulty) {
+        const result = await app.mysql.query(
+          `select * from questions where question like '%${keyword}%'`,
+        );
+        return result;
+      }
+      // 只有题型
+      if (!keyword && questionType && !difficulty) {
+        const result = await app.mysql.query(
+          `select * from questions where questionType = '${questionType}'`,
+        );
+        return result;
+      }
+      // 只有难度
+      if (!keyword && !questionType && difficulty) {
+        const result = await app.mysql.query(
+          `select * from questions where difficulty = '${difficulty}'`,
+        );
+        return result;
+      }
+      // 题型和难度
+      if (!keyword && questionType && difficulty) {
+        const result = await app.mysql.query(
+          `select * from questions where questionType = '${questionType}' and difficulty = '${difficulty}'`,
+        );
+        return result;
+      }
+      // 关键字和题型
+      if (keyword && questionType && !difficulty) {
+        const result = await app.mysql.query(
+          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}'`,
+        );
+        return result;
+      }
+      // 关键字和难度
+      if (keyword && !questionType && difficulty) {
+        const result = await app.mysql.query(
+          `select * from questions where question like '%${keyword}%' and difficulty = '${difficulty}'`,
+        );
+        return result;
+      }
+      // 题型和难度和关键字
+      if (keyword && questionType && difficulty) {
+        const result = await app.mysql.query(
+          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}' and difficulty = '${difficulty}'`,
+        );
+        return result;
+      }
     } catch (err) {
       return null;
     }
