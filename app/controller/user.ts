@@ -41,7 +41,7 @@ export default class User extends Controller {
     const { username, email, password, phone, sex } = ctx.request.body;
     const userInfo = await ctx.service.user.getUserByName(username);
     const defaultAvatar =
-      'https://c-ssl.dtstatic.com/uploads/blog/202104/22/20210422220419_1797f.thumb.1000_0.jpg';
+      'https://img95.699pic.com/xsj/1p/0r/j2.jpg%21/fh/300';
     if (!email || !password) {
       ctx.fail('账号密码不能为空');
       return;
