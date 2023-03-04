@@ -53,10 +53,11 @@ export default class User extends Service {
       return null;
     }
   }
-  public async getUserByName(val: string) {
+  public async getUserByName(params) {
     const { app } = this;
+    const { phone } = params;
     try {
-      const result = await app.mysql.get('user', { val });
+      const result = await app.mysql.get('user', { phone });
       return result;
     } catch (err) {
       return null;

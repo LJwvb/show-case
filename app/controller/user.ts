@@ -39,7 +39,9 @@ export default class User extends Controller {
   public async register() {
     const { ctx } = this;
     const { username, email, password, phone, sex } = ctx.request.body;
-    const userInfo = await ctx.service.user.getUserByName(phone);
+    const userInfo = await ctx.service.user.getUserByName({
+      phone,
+    });
     const defaultAvatar = 'https://img95.699pic.com/xsj/1p/0r/j2.jpg%21/fh/300';
     if (!email || !password) {
       ctx.fail('账号密码不能为空');
