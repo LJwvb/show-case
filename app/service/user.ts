@@ -53,10 +53,10 @@ export default class User extends Service {
       return null;
     }
   }
-  public async getUserByName(username) {
+  public async getUserByName(val: string) {
     const { app } = this;
     try {
-      const result = await app.mysql.get('user', { username });
+      const result = await app.mysql.get('user', { val });
       return result;
     } catch (err) {
       return null;

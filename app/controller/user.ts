@@ -39,15 +39,14 @@ export default class User extends Controller {
   public async register() {
     const { ctx } = this;
     const { username, email, password, phone, sex } = ctx.request.body;
-    const userInfo = await ctx.service.user.getUserByName(username);
-    const defaultAvatar =
-      'https://img95.699pic.com/xsj/1p/0r/j2.jpg%21/fh/300';
+    const userInfo = await ctx.service.user.getUserByName(phone);
+    const defaultAvatar = 'https://img95.699pic.com/xsj/1p/0r/j2.jpg%21/fh/300';
     if (!email || !password) {
       ctx.fail('账号密码不能为空');
       return;
     }
     if (userInfo) {
-      ctx.fail('账户已被注册，请重新输入');
+      ctx.fail('该手机号已被注册，请重新输入');
       return;
     }
     const result = await ctx.service.user.register({
