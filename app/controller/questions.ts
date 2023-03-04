@@ -170,9 +170,9 @@ export default class questions extends Controller {
   // 组卷
   public async getPaperQuestions() {
     const { ctx } = this;
-    const { ids, author } = ctx.request.body;
+    const { ids, author, paperTitle, paperTags, purview } = ctx.request.body;
     const arrayIds = ids.split(',');
-    if (!ids || !author) {
+    if (!paperTitle) {
       ctx.fail('请填写完整信息~');
       return;
     }
@@ -189,6 +189,9 @@ export default class questions extends Controller {
     const result = await ctx.service.questions.getPaperQuestions({
       ids,
       author,
+      paper_title: paperTitle,
+      paper_tags: paperTags,
+      purview,
       ctime: getNowFormatDate(),
     });
     if (result) {
