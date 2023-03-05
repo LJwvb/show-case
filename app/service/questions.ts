@@ -83,16 +83,16 @@ export default class questions extends Service {
             .filter((item: any) => item?.catalogID === 0)
             .sort(() => Math.random() - 0.5)
           : filterResult.filter((item: any) => item?.catalogID === 0);
-        const allQuestionList1 = refresh ? filterResult.filter(
-          (item: any) => item?.catalogID === 1,
-        ).sort(() => Math.random() - 0.5) : filterResult.filter(
-          (item: any) => item?.catalogID === 1,
-        );
-        const allQuestionList2 = refresh ? filterResult.filter(
-          (item: any) => item?.catalogID === 2,
-        ).sort(() => Math.random() - 0.5) : filterResult.filter(
-          (item: any) => item?.catalogID === 2,
-        );
+        const allQuestionList1 = refresh
+          ? filterResult
+            .filter((item: any) => item?.catalogID === 1)
+            .sort(() => Math.random() - 0.5)
+          : filterResult.filter((item: any) => item?.catalogID === 1);
+        const allQuestionList2 = refresh
+          ? filterResult
+            .filter((item: any) => item?.catalogID === 2)
+            .sort(() => Math.random() - 0.5)
+          : filterResult.filter((item: any) => item?.catalogID === 2);
         allSubjectList.push({
           list: [
             {
@@ -426,16 +426,18 @@ export default class questions extends Service {
         `select * from examination_paper where author = '${author}' order by paper_id desc`,
       );
       const ids = result.map((item: any) => item.ids);
-      const questions: any = [];
+      const papers: any = [];
       for (let i = 0; i < ids.length; i++) {
         const item = ids[i];
         const question = await app.mysql.query(
           `select * from questions where id in (${item})`,
         );
-        questions.push(question);
+        papers.push({
+          list: question,
+          paperInfo: result[i],
+        });
       }
-
-      return { questions };
+      return papers;
     } catch (err) {
       return null;
     }

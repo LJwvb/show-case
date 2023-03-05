@@ -49,12 +49,18 @@ describe('test/app/service/Test.test.js', () => {
   //   });
   //   assert(result);
   // });
-  it('getSimilarQuestions', async () => {
-    const result = await ctx.service.questions.getSimilarQuestions({
-      id: 54,
+  // it('getSimilarQuestions', async () => {
+  //   const result = await ctx.service.questions.getSimilarQuestions({
+  //     id: 54,
+  //   });
+  //   console.log(result);
+  //   assert(result);
+  // });
+  it('getPaperQuestionsList', async () => {
+    const result = await ctx.service.questions.getPaperQuestionsList({
+      author: 'admin',
     });
     console.log(result);
     assert(result);
   });
-
 });
