@@ -203,11 +203,12 @@ export default class questions extends Controller {
   // 获取组卷列表
   public async getPaperQuestionsList() {
     const { ctx } = this;
-    const { currentPage, pageSize, author } = ctx.request.body;
+    const { currentPage, pageSize, author, type } = ctx.request.body;
     const result = await ctx.service.questions.getPaperQuestionsList({
       currentPage,
       pageSize,
       author,
+      type,
     });
     if (result) {
       ctx.success(result, '请求成功');

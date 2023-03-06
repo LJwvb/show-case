@@ -420,8 +420,21 @@ export default class questions extends Service {
   // 获取组卷列表
   public async getPaperQuestionsList(params) {
     const { app } = this;
-    const { author } = params;
+    const { author, type } = params;
     try {
+      if (type === 'all') {
+        // 获取所有组卷
+        const result: any = await app.mysql.query(
+          'select * from examination_paper order by paper_id desc',
+        );
+        const purviewPaper = result.filter((item: any) => item.purview === 0); // 公开的试卷
+        const personPaper = result.filter((item: any) => item.purview === 1); // 个人的试卷
+
+        return {
+          purviewPaper,
+          personPaper,
+        };
+      }
       const result: any = await app.mysql.query(
         `select * from examination_paper where author = '${author}' order by paper_id desc`,
       );
@@ -438,6 +451,8 @@ export default class questions extends Service {
         });
       }
       return papers;
+
+
     } catch (err) {
       return null;
     }
