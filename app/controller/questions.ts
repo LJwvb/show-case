@@ -216,6 +216,19 @@ export default class questions extends Controller {
       ctx.fail('获取题目失败~');
     }
   }
+  // 试卷详情
+  public async getPaperQuestionsDetail() {
+    const { ctx } = this;
+    const { paperId } = ctx.request.body;
+    const result = await ctx.service.questions.getPaperQuestionsDetail({
+      paperId,
+    });
+    if (result) {
+      ctx.success(result, '请求成功');
+    } else {
+      ctx.fail('获取题目失败~');
+    }
+  }
   // 相似题目
   public async getSimilarQuestions() {
     const { ctx } = this;

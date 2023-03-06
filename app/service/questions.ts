@@ -435,6 +435,7 @@ export default class questions extends Service {
           personPaper,
         };
       }
+      // 我的试卷
       const result: any = await app.mysql.query(
         `select * from examination_paper where author = '${author}' order by paper_id desc`,
       );
@@ -451,8 +452,24 @@ export default class questions extends Service {
         });
       }
       return papers;
-
-
+    } catch (err) {
+      return null;
+    }
+  }
+  // 获取组卷详情
+  public async getPaperQuestionsDetail(params) {
+    const { app } = this;
+    const { paperId } = params;
+    try {
+      const result: any = await app.mysql.get('examination_paper', { paper_id: paperId });
+      const ids = result.ids.split(',');
+      const questions = await app.mysql.query(
+        `select * from questions where id in (${ids})`,
+      );
+      return {
+        paperInfo: result,
+        questions,
+      };
     } catch (err) {
       return null;
     }
