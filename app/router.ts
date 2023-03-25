@@ -48,4 +48,6 @@ export default (app: Application) => {
   router.post('/getSimilarQuestions', controller.questions.getSimilarQuestions);
   // 搜索题目
   router.post('/searchQuestions', controller.questions.searchQuestions);
+  // 科目列表
+  router.get('/getSubjectList', controller.subjectList.getSubjectList);
 };

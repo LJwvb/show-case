@@ -460,12 +460,22 @@ export default class questions extends Service {
   public async getPaperQuestionsDetail(params) {
     const { app } = this;
     const { paperId } = params;
+
     try {
-      const result: any = await app.mysql.get('examination_paper', { paper_id: paperId });
+      const result: any = await app.mysql.get('examination_paper', {
+        paper_id: paperId,
+      });
       const ids = result.ids.split(',');
-      const questions = await app.mysql.query(
-        `select * from questions where id in (${ids})`,
-      );
+      const questions: any = [];
+      for (let i = 0; i < ids.length; i++) {
+        const item = ids[i];
+        // 找到id对应的题目
+        const question = await app.mysql.query(
+          `select * from questions where id = (${item})`,
+        );
+        questions.push(question[0]);
+      }
+
       return {
         paperInfo: result,
         questions,

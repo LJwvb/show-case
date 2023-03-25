@@ -73,12 +73,9 @@ function getSubjectName(subjectID) {
       subjectName = 'Git';
       break;
     case 10:
-      subjectName = 'Linux';
-      break;
-    case 11:
       subjectName = 'HTTP';
       break;
-    case 12:
+    case 11:
       subjectName = '浏览器';
       break;
     default:
@@ -104,5 +101,59 @@ function getCatalogName(catalogID) {
   }
   return catalogName;
 }
+export const subjectList = [
+  {
+    content: 'JavaScript',
+    subjectID: 0,
+  },
+  {
+    content: 'CSS',
+    subjectID: 1,
+  },
+  {
+    content: 'HTML',
+    subjectID: 2,
+  },
+  {
+    content: 'Vue',
+    subjectID: 3,
+  },
+  {
+    content: 'React',
+    subjectID: 4,
+  },
+  {
+    content: 'Angular',
+    subjectID: 5,
+  },
+  {
+    content: 'Node',
+    subjectID: 6,
+  },
+  {
+    content: 'Webpack',
+    subjectID: 7,
+  },
+  {
+    content: 'TypeScript',
+    subjectID: 8,
+  },
+  {
+    content: 'Git',
+    subjectID: 9,
+  },
+  {
+    content: 'HTTP',
+    subjectID: 10,
+  },
+  {
+    content: '浏览器',
+    subjectID: 11,
+  },
+  {
+    content: '其他',
+    subjectID: 12,
+  },
+];
 
 export { getNowFormatDate, removePassword, getSubjectName, getCatalogName };
