@@ -427,8 +427,10 @@ export default class questions extends Service {
         const result: any = await app.mysql.query(
           'select * from examination_paper order by paper_id desc',
         );
-        const purviewPaper = result.filter((item: any) => item.purview === 0); // 公开的试卷
-        const personPaper = result.filter((item: any) => item.purview === 1); // 个人的试卷
+        const purviewPaper = result.filter((item: any) => item.purview === 0); // 官方的试卷
+        const personPaper = result.filter(
+          (item: any) => item.purview === 1 && item?.chkState !== 0,
+        ); // 个人审核通过公开的试卷
 
         return {
           purviewPaper,

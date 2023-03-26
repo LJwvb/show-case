@@ -193,6 +193,7 @@ export default class questions extends Controller {
       paper_tags: paperTags,
       purview,
       ctime: getNowFormatDate(),
+      chkState: Number(purview) === 1 ? 0 : 1,
     });
     if (result) {
       ctx.success(null, '组卷成功~');

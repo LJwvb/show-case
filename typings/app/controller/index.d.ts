@@ -4,12 +4,14 @@
 import 'egg';
 import ExportQuestions from '../../../app/controller/questions';
 import ExportRankingList from '../../../app/controller/rankingList';
+import ExportSubjectList from '../../../app/controller/subjectList';
 import ExportUser from '../../../app/controller/user';
 
 declare module 'egg' {
   interface IController {
     questions: ExportQuestions;
     rankingList: ExportRankingList;
+    subjectList: ExportSubjectList;
     user: ExportUser;
   }
 }
