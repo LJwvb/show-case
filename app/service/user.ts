@@ -123,7 +123,10 @@ export default class User extends Service {
     const { app } = this;
     try {
       const result = await app.mysql.get('admin', params);
-      return result;
+      return {
+        ...result,
+        isAdmin: true,
+      };
     } catch (err) {
       return null;
     }
