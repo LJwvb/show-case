@@ -22,6 +22,8 @@ export default (app: Application) => {
   router.post('/getQuestionDetail', controller.questions.getQuestionDetail);
   // 获取未审核的题目
   router.get('/getNoChkQuestions', controller.questions.getNoChkQuestions);
+  // 所有已审核的题目
+  router.get('/getAllChkQuestions', controller.questions.getAllChkQuestions);
   // 上传题目
   router.post('/uploadQuestions', controller.questions.uploadQuestions);
   // 审核题目
@@ -38,16 +40,19 @@ export default (app: Application) => {
   router.post('/cancelLikeQuestions', controller.questions.cancelLikeQuestions);
   // 获取排行榜
   router.get('/getRankingList', controller.rankingList.getRankingList);
-  // 组卷
-  router.post('/getPaperQuestions', controller.questions.getPaperQuestions);
-  // 试卷列表
-  router.post('/getPaperQuestionsList', controller.questions.getPaperQuestionsList);
-  // 试卷详情
-  router.post('/getPaperQuestionsDetail', controller.questions.getPaperQuestionsDetail);
   // 相似题目
   router.post('/getSimilarQuestions', controller.questions.getSimilarQuestions);
   // 搜索题目
   router.post('/searchQuestions', controller.questions.searchQuestions);
   // 科目列表
   router.get('/getSubjectList', controller.subjectList.getSubjectList);
+
+  // 组卷
+  router.post('/getPaperQuestions', controller.paper.getPaperQuestions);
+  // 试卷列表
+  router.post('/getPaperQuestionsList', controller.paper.getPaperQuestionsList);
+  // 试卷详情
+  router.post('/getPaperQuestionsDetail', controller.paper.getPaperQuestionsDetail);
+  // 试卷审核
+  router.post('chkPaper', controller.paper.chkPaper);
 };

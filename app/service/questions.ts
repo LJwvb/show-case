@@ -241,6 +241,22 @@ export default class questions extends Service {
       return null;
     }
   }
+  // 所有已审核的题目
+  public async getAllChkQuestions(params) {
+    const { app } = this;
+    const { pageNo, pageSize } = params;
+
+    try {
+      const result = await app.mysql.select('questions', {
+        where: { chkState: 1 },
+        limit: pageSize,
+        offset: (pageNo - 1) * pageSize,
+      });
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
   // 审核题目
   public async chkQuestions(params: IChkQuestions) {
     const { app } = this;
@@ -407,85 +423,7 @@ export default class questions extends Service {
       return null;
     }
   }
-  // 组卷
-  public async getPaperQuestions(params) {
-    const { app } = this;
-    try {
-      const result = await app.mysql.insert('examination_paper', params);
-      return result;
-    } catch (err) {
-      return null;
-    }
-  }
-  // 获取组卷列表
-  public async getPaperQuestionsList(params) {
-    const { app } = this;
-    const { author, type } = params;
-    try {
-      if (type === 'all') {
-        // 获取所有组卷
-        const result: any = await app.mysql.query(
-          'select * from examination_paper order by paper_id desc',
-        );
-        const purviewPaper = result.filter((item: any) => item.purview === 0); // 官方的试卷
-        const personPaper = result.filter(
-          (item: any) => item.purview === 1 && item?.chkState !== 0,
-        ); // 个人审核通过公开的试卷
 
-        return {
-          purviewPaper,
-          personPaper,
-        };
-      }
-      // 我的试卷
-      const result: any = await app.mysql.query(
-        `select * from examination_paper where author = '${author}' order by paper_id desc`,
-      );
-      const ids = result.map((item: any) => item.ids);
-      const papers: any = [];
-      for (let i = 0; i < ids.length; i++) {
-        const item = ids[i];
-        const question = await app.mysql.query(
-          `select * from questions where id in (${item})`,
-        );
-        papers.push({
-          list: question,
-          paperInfo: result[i],
-        });
-      }
-      return papers;
-    } catch (err) {
-      return null;
-    }
-  }
-  // 获取组卷详情
-  public async getPaperQuestionsDetail(params) {
-    const { app } = this;
-    const { paperId } = params;
-
-    try {
-      const result: any = await app.mysql.get('examination_paper', {
-        paper_id: paperId,
-      });
-      const ids = result.ids.split(',');
-      const questions: any = [];
-      for (let i = 0; i < ids.length; i++) {
-        const item = ids[i];
-        // 找到id对应的题目
-        const question = await app.mysql.query(
-          `select * from questions where id = (${item})`,
-        );
-        questions.push(question[0]);
-      }
-
-      return {
-        paperInfo: result,
-        questions,
-      };
-    } catch (err) {
-      return null;
-    }
-  }
   // 相似题目
   public async getSimilarQuestions(params) {
     const { app } = this;

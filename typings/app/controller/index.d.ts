@@ -2,6 +2,7 @@
 // Do not modify this file!!!!!!!!!
 
 import 'egg';
+import ExportPaper from '../../../app/controller/paper';
 import ExportQuestions from '../../../app/controller/questions';
 import ExportRankingList from '../../../app/controller/rankingList';
 import ExportSubjectList from '../../../app/controller/subjectList';
@@ -9,6 +10,7 @@ import ExportUser from '../../../app/controller/user';
 
 declare module 'egg' {
   interface IController {
+    paper: ExportPaper;
     questions: ExportQuestions;
     rankingList: ExportRankingList;
     subjectList: ExportSubjectList;

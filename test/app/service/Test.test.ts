@@ -56,11 +56,19 @@ describe('test/app/service/Test.test.js', () => {
   //   console.log(result);
   //   assert(result);
   // });
-  it('getPaperQuestionsList', async () => {
-    const result = await ctx.service.questions.getPaperQuestionsList({
-      author: 'admin',
+  // it('getPaperQuestionsList', async () => {
+  //   const result = await ctx.service.questions.getPaperQuestionsList({
+  //     author: 'admin',
+  //   });
+  //   console.log(result);
+  //   assert(result);
+  // });
+  it('chkPaper', async () => {
+    const result = await ctx.service.paper.chkPaperQuestions({
+      paperId: 30,
+      chkState: 1,
     });
-    console.log(result);
     assert(result);
+
   });
 });
