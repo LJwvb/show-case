@@ -101,4 +101,16 @@ export default class paper extends Service {
       return null;
     }
   }
+  // 所有未审核的试卷
+  public async getNoChkPaper() {
+    const { app } = this;
+    try {
+      const result: any = await app.mysql.query(
+        'select * from examination_paper where chkState = 0',
+      );
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
 }

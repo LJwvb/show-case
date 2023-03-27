@@ -79,4 +79,14 @@ export default class paper extends Controller {
       ctx.fail('失败~');
     }
   }
+  // 所有未审核的试卷
+  public async getNoChkPaper() {
+    const { ctx } = this;
+    const result = await ctx.service.paper.getNoChkPaper();
+    if (result) {
+      ctx.success(result, '请求成功');
+    } else {
+      ctx.fail('获取题目失败~');
+    }
+  }
 }

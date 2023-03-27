@@ -55,4 +55,6 @@ export default (app: Application) => {
   router.post('/getPaperQuestionsDetail', controller.paper.getPaperQuestionsDetail);
   // 试卷审核
   router.post('chkPaper', controller.paper.chkPaper);
+  // 所有未审核的试卷
+  router.get('/getNoChkPaper', controller.paper.getNoChkPaper);
 };
