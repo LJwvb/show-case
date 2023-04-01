@@ -24,22 +24,11 @@ export default class User extends Controller {
       ctx.fail('账号或密码错误，登录失败');
     }
   }
-  // 管理员登录
-  public async adminLogin() {
-    const { ctx } = this;
-    const data = await ctx.service.user.adminLogin(ctx.request.body);
-    if (data) {
-      const returnData = removePassword(data);
-      ctx.success(returnData, '登录成功');
-    } else {
-      ctx.fail('账号或密码错误，登录失败');
-    }
-  }
   // 注册
   public async register() {
     const { ctx } = this;
     const { username, email, password, phone, sex } = ctx.request.body;
-    const userInfo = await ctx.service.user.getUserByName({
+    const userInfo = await ctx.service.user.getUserInfo({
       phone,
     });
     const defaultAvatar = 'https://img95.699pic.com/xsj/1p/0r/j2.jpg%21/fh/300';
@@ -81,16 +70,21 @@ export default class User extends Controller {
       ctx.fail('验证码生成失败');
     }
   }
+  // 获取用户信息
+  public async getUserInfo() {
+    const { ctx } = this;
+    const result = await ctx.service.user.getUserInfo(ctx.request.body);
+    if (result) {
+      // 去除密码
+      const returnData = removePassword(result);
+      ctx.success(returnData, '请求成功');
+    } else {
+      ctx.fail('获取用户信息失败');
+    }
+  }
   // 编辑信息
   public async updateUserInfo() {
     const { ctx } = this;
-    const { username } = ctx.request.body;
-    const userInfo = await ctx.service.user.getUserByName(username);
-    if (userInfo) {
-      ctx.fail('用户名已存在');
-      return;
-    }
-
     const result = await ctx.service.user.updateUserInfo(ctx.request.body);
     if (result) {
       ctx.success(null, '修改成功');
@@ -98,18 +92,14 @@ export default class User extends Controller {
       ctx.fail('修改失败');
     }
   }
-  // 获取用户列表
-  public async getUserList() {
+  // 获取用户上传的题目
+  public async getUserUploadQues() {
     const { ctx } = this;
-
-    const result = await ctx.service.user.getUserList();
-
+    const result = await ctx.service.user.getUserUploadQues(ctx.request.body);
     if (result) {
-      // 去除密码
-      const returnData = removePassword(result);
-      ctx.success(returnData, '请求成功');
+      ctx.success(result, '请求成功');
     } else {
-      ctx.fail('获取用户列表失败');
+      ctx.fail('请求失败');
     }
   }
 }

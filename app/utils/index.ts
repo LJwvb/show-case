@@ -26,11 +26,11 @@ function getNowFormatDate() {
   return currentDate;
 }
 
-// 去除密码
+// 去除密码和电话号码
 function removePassword(data) {
   const returnData = JSON.parse(
     JSON.stringify(data, (key, value) => {
-      if (key === 'password') {
+      if (key === 'password' || key === 'phone') {
         return undefined;
       }
       return value;
@@ -155,5 +155,13 @@ export const subjectList = [
     subjectID: 12,
   },
 ];
+// 随机生成18位的uerId
+function randomUserId() {
+  const userId = Math.random()
+    .toString(36)
+    .substr(2, 18);
+  return userId;
 
-export { getNowFormatDate, removePassword, getSubjectName, getCatalogName };
+}
+
+export { getNowFormatDate, removePassword, getSubjectName, getCatalogName, randomUserId };

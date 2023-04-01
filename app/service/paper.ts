@@ -35,19 +35,8 @@ export default class paper extends Service {
       const result: any = await app.mysql.query(
         `select * from examination_paper where author = '${author}' order by paper_id desc`,
       );
-      const ids = result.map((item: any) => item.ids);
-      const papers: any = [];
-      for (let i = 0; i < ids.length; i++) {
-        const item = ids[i];
-        const question = await app.mysql.query(
-          `select * from questions where id in (${item})`,
-        );
-        papers.push({
-          list: question,
-          paperInfo: result[i],
-        });
-      }
-      return papers;
+
+      return result;
     } catch (err) {
       return null;
     }

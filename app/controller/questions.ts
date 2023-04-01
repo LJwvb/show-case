@@ -50,67 +50,7 @@ export default class questions extends Controller {
       ctx.fail('上传失败,请重新上传~');
     }
   }
-  // 获取未审核题目
-  public async getNoChkQuestions() {
-    const { ctx } = this;
-    const result = await ctx.service.questions.getNoChkQuestions();
-    if (result) {
-      ctx.success(result, '请求成功');
-    } else {
-      ctx.fail('获取题目失败~');
-    }
-  }
-  // 所有已审核的题目
-  public async getAllChkQuestions() {
-    const { ctx } = this;
-    const result = await ctx.service.questions.getAllChkQuestions(ctx.request.body);
-    if (result) {
-      ctx.success(result, '请求成功');
-    } else {
-      ctx.fail('获取题目失败~');
-    }
-  }
-  // 审核题目
-  public async chkQuestions() {
-    const { ctx } = this;
-    const { id, chkState, chkUser, chkRemarks, creator } = ctx.request.body;
-    if (!id || !chkState) {
-      ctx.fail('请填写完整信息~');
-      return;
-    }
-    const result = await ctx.service.questions.chkQuestions({
-      id,
-      chkState,
-      chkUser,
-      creator,
-      chkRemarks,
-      chkDate: getNowFormatDate(),
-      publishDate: getNowFormatDate(),
-      publishState: 1,
-    });
-    if (result) {
-      ctx.success(null, '审核成功~');
-    } else {
-      ctx.fail('审核失败,请重新审核~');
-    }
-  }
-  // 删除题目
-  public async deleteQuestions() {
-    const { ctx } = this;
-    const { id } = ctx.request.body;
-    if (!id) {
-      ctx.fail('请填写完整信息~');
-      return;
-    }
-    const result = await ctx.service.questions.deleteQuestions({
-      id,
-    });
-    if (result) {
-      ctx.success(null, '删除成功~');
-    } else {
-      ctx.fail('删除失败,请重新删除~');
-    }
-  }
+
   // 每日一练
   public async getDailyQuestions() {
     const { ctx } = this;

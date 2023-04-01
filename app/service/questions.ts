@@ -8,17 +8,7 @@ interface IQuestion {
   pageSize: number; // 每页条数
   catalogID: number; // 章节ID
   refresh?: boolean; // 是否刷新
-}
-
-interface IChkQuestions {
-  id: number | string; // 题目ID
-  chkState?: 0 | 1 | 2; // 审核状态 0:未审核 1:审核通过 2:审核不通过
-  chkUser?: string; // 审核人
-  creator?: string; // 创建人
-  chkRemarks?: string; // 审核备注
-  chkDate?: string; // 审核时间
-  publishDate?: string; // 发布时间
-  publishState?: 0 | 1 | 2; // 发布状态 0:未发布 1:已发布 2:已下架
+  ids?: string; // 题目ID
 }
 
 interface IUploadQuestions {
@@ -47,10 +37,12 @@ export default class questions extends Service {
   // 获取题目
   public async getQuestions(params: IQuestion) {
     const { app } = this;
-    const { type, currentPage, pageSize, catalogID, refresh } = params;
+    const { type, currentPage, pageSize, catalogID, refresh, ids } = params;
+    console.log('params', params);
     try {
       const subjectList: any = [];
       const allSubjectList: any = [];
+      const userSubjectList: any = [];
 
       if (type === 'all') {
         const result = await app.mysql.select('questions', {
@@ -123,7 +115,7 @@ export default class questions extends Service {
         };
       }
 
-      if (type !== 'all') {
+      if (type === 'home') {
         const result = await app.mysql.select('questions');
         // 去除未审核的题目,把tags转换成数组
         const filterResult = result.filter((item: any) => item?.chkState === 1);
@@ -210,6 +202,19 @@ export default class questions extends Service {
           result: subjectList,
         };
       }
+      if (type === 'user') {
+        const result = await app.mysql.select('questions');
+        const questionIds: any = ids && ids.split(',');
+        questionIds.forEach((id: any) => {
+          const question = result.find((item: any) => item.id === Number(id));
+          if (question) {
+            userSubjectList.push(question);
+          }
+        });
+        return {
+          result: userSubjectList,
+        };
+      }
     } catch (err) {
       return null;
     }
@@ -225,74 +230,7 @@ export default class questions extends Service {
       return null;
     }
   }
-  // 所有未审核的题目
-  public async getNoChkQuestions() {
-    const { app } = this;
-    try {
-      const result = await app.mysql.select('questions', {
-        where: { chkState: 0 },
-      });
-      // 获取所有未审核题目总数
-      const count = await app.mysql.query(
-        'select count(*) as count from questions where chkState = 0',
-      );
-      return { result, total: count[0].count };
-    } catch (err) {
-      return null;
-    }
-  }
-  // 所有已审核的题目
-  public async getAllChkQuestions(params) {
-    const { app } = this;
-    const { pageNo, pageSize } = params;
 
-    try {
-      const result = await app.mysql.select('questions', {
-        where: { chkState: 1 },
-        limit: pageSize,
-        offset: (pageNo - 1) * pageSize,
-      });
-      return result;
-    } catch (err) {
-      return null;
-    }
-  }
-  // 审核题目
-  public async chkQuestions(params: IChkQuestions) {
-    const { app } = this;
-    const { chkState, creator } = params;
-    try {
-      const result = await app.mysql.update('questions', params, {
-        where: { id: params.id },
-      });
-      // 审核通过则更新排行榜上传题目数量
-      if (chkState === 1) {
-        const rankList: any = await app.mysql.get('ranking_list', {
-          username: creator,
-        });
-        if (rankList) {
-          await app.mysql.update(
-            'ranking_list',
-            { upload_ques_num: rankList.upload_ques_num + 1 },
-            { where: { username: creator } },
-          );
-        }
-      }
-      return result;
-    } catch (err) {
-      return null;
-    }
-  }
-  // 删除题目
-  public async deleteQuestions(params) {
-    const { app } = this;
-    try {
-      const result = await app.mysql.delete('questions', params);
-      return result;
-    } catch (err) {
-      return null;
-    }
-  }
   // 点赞题目
   public async likeQuestions(params) {
     const { app } = this;
@@ -319,13 +257,16 @@ export default class questions extends Service {
         { likeTopicsId: idStr },
         { where: { username } },
       );
-      if (rankList) {
-        await app.mysql.update(
-          'ranking_list',
-          { get_likes_num: rankList.get_likes_num + 1 },
-          { where: { username: creator } },
-        );
-      }
+      await app.mysql.update(
+        'user',
+        { like_ques_num: user.like_ques_num + 1 },
+        { where: { username: creator } },
+      );
+      await app.mysql.update(
+        'ranking_list',
+        { get_likes_num: rankList.get_likes_num + 1 },
+        { where: { username: creator } },
+      );
       return result;
     } catch (err) {
       return null;
@@ -354,18 +295,22 @@ export default class questions extends Service {
         { likeTopicsId: idStr },
         { where: { username } },
       );
+      await app.mysql.update(
+        'user',
+        { like_ques_num: user.like_ques_num - 1 },
+        { where: { username: creator } },
+      );
 
       // 更新排行榜点赞数量
       const rankList: any = await app.mysql.get('ranking_list', {
         username: creator,
       });
-      if (rankList) {
-        await app.mysql.update(
-          'ranking_list',
-          { get_likes_num: rankList.get_likes_num - 1 },
-          { where: { username: creator } },
-        );
-      }
+      await app.mysql.update(
+        'ranking_list',
+        { get_likes_num: rankList.get_likes_num - 1 },
+        { where: { username: creator } },
+      );
+
       return result;
     } catch (err) {
       return null;
@@ -403,7 +348,23 @@ export default class questions extends Service {
   // 上传题目
   public async uploadQuestions(params: IUploadQuestions) {
     const { app } = this;
+    const { creator } = params;
     try {
+      // 获取用户上传的题目数量
+      const user: any = await app.mysql.get('user', {
+        username: creator,
+      });
+      await app.mysql.update(
+        'user',
+        { upload_ques_num: user.upload_ques_num + 1 },
+        { where: { username: creator } },
+      );
+      await app.mysql.update(
+        'ranking_list',
+        { upload_ques_num: user.upload_ques_num + 1 },
+        { where: { username: creator } },
+      );
+
       const result = await app.mysql.insert('questions', params);
       return result;
     } catch (err) {

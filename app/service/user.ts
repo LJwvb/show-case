@@ -1,5 +1,6 @@
 import { Service } from 'egg';
 import { createMathExpr } from 'svg-captcha';
+import { randomUserId } from '../utils';
 import md5 from 'md5';
 
 interface LoginParams {
@@ -47,13 +48,15 @@ export default class User extends Service {
         avatar: params.avatar,
         upload_ques_num: 0,
         get_likes_num: 0,
+        userId: randomUserId(),
       });
       return result;
     } catch (err) {
       return null;
     }
   }
-  public async getUserByName(params) {
+  // 获取用户信息
+  public async getUserInfo(params) {
     const { app } = this;
     const { phone } = params;
     try {
@@ -66,21 +69,11 @@ export default class User extends Service {
   // 更新用户信息
   public async updateUserInfo(params) {
     const { app } = this;
+
     try {
-      await app.mysql.update('user', params, {
+      const result = await app.mysql.update('user', params, {
         where: { phone: params.phone },
       });
-    } catch (err) {
-      return null;
-    }
-  }
-  // 获取用户列表
-  public async getUserList() {
-    const { app } = this;
-
-    try {
-      const result = await app.mysql.select('user');
-
       return result;
     } catch (err) {
       return null;
@@ -117,15 +110,19 @@ export default class User extends Service {
       text: md5(text),
     };
   }
-  // 管理员登录
-  public async adminLogin(params) {
+  // 获取用户上传的题目
+  public async getUserUploadQues(params) {
     const { app } = this;
+    const { username } = params;
+    console.log(username);
     try {
-      const result = await app.mysql.get('admin', params);
-      return {
-        ...result,
-        isAdmin: true,
-      };
+      const result: any = await app.mysql.select('questions', {
+        where: { creator: username },
+      });
+      // 区分未审核和审核通过的题目
+      const uncheck = result.filter((item: any) => item.chkState === 0);
+      const checked = result.filter((item: any) => item.chkState === 1);
+      return { uncheck, checked };
     } catch (err) {
       return null;
     }
