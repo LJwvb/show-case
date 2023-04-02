@@ -31,7 +31,7 @@ export default class admin extends Controller {
   // 获取未审核题目
   public async getNoChkQuestions() {
     const { ctx } = this;
-    const result = await ctx.admin.questions.getNoChkQuestions();
+    const result = await ctx.service.admin.getNoChkQuestions();
     if (result) {
       ctx.success(result, '请求成功');
     } else {
@@ -41,7 +41,7 @@ export default class admin extends Controller {
   // 所有已审核的题目
   public async getAllChkQuestions() {
     const { ctx } = this;
-    const result = await ctx.admin.questions.getAllChkQuestions(
+    const result = await ctx.service.admin.getAllChkQuestions(
       ctx.request.body
     );
     if (result) {
@@ -58,7 +58,7 @@ export default class admin extends Controller {
       ctx.fail('请填写完整信息~');
       return;
     }
-    const result = await ctx.admin.questions.chkQuestions({
+    const result = await ctx.service.admin.chkQuestions({
       id,
       chkState,
       chkUser,
@@ -82,7 +82,7 @@ export default class admin extends Controller {
       ctx.fail('请填写完整信息~');
       return;
     }
-    const result = await ctx.admin.questions.deleteQuestions({
+    const result = await ctx.service.admin.deleteQuestions({
       id,
     });
     if (result) {
