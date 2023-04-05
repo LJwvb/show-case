@@ -33,6 +33,10 @@ export default (app: Application) => {
   router.post('/chkQuestions', controller.admin.chkQuestions);
   // 删除题目
   router.post('/deleteQuestions', controller.admin.deleteQuestions);
+  // 试卷审核
+  router.post('/chkPaper', controller.paper.chkPaper);
+  // 所有未审核的试卷
+  router.get('/getNoChkPaper', controller.paper.getNoChkPaper);
 
   // todo 题目
   // 题目列表
@@ -66,10 +70,6 @@ export default (app: Application) => {
     '/getPaperQuestionsDetail',
     controller.paper.getPaperQuestionsDetail
   );
-  // 试卷审核
-  router.post('chkPaper', controller.paper.chkPaper);
-  // 所有未审核的试卷
-  router.get('/getNoChkPaper', controller.paper.getNoChkPaper);
 
   // todo 排行榜
   // 获取排行榜

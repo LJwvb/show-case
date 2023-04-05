@@ -65,7 +65,7 @@ describe('test/app/service/Test.test.js', () => {
   // });
   it('chkPaper', async () => {
     const result = await ctx.service.paper.chkPaperQuestions({
-      paperId: 30,
+      paperId: 33,
       chkState: 1,
     });
     assert(result);
