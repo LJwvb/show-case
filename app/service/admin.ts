@@ -156,8 +156,11 @@ export default class admin extends Service {
   // 删除试卷
   public async deletePaper(params) {
     const { app } = this;
+    const { paperId } = params;
     try {
-      const result = await app.mysql.delete('examination_paper', params);
+      const result = await app.mysql.delete('examination_paper', {
+        paper_id: paperId,
+      });
       return result;
     } catch (err) {
       return null;
