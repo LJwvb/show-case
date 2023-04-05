@@ -1,6 +1,5 @@
 import { Service } from 'egg';
 import { createMathExpr } from 'svg-captcha';
-import { randomUserId } from '../utils';
 import md5 from 'md5';
 
 interface LoginParams {
@@ -48,7 +47,6 @@ export default class User extends Service {
         avatar: params.avatar,
         upload_ques_num: 0,
         get_likes_num: 0,
-        userId: randomUserId(),
       });
       return result;
     } catch (err) {
