@@ -69,37 +69,5 @@ export default class paper extends Service {
       return null;
     }
   }
-  // 审核试卷
-  public async chkPaperQuestions(params) {
-    const { app } = this;
-    const { paperId, chkState } = params;
-    try {
-      const result = await app.mysql.update(
-        'examination_paper',
-        {
-          chkState,
-        },
-        {
-          where: {
-            paper_id: paperId,
-          },
-        },
-      );
-      return result;
-    } catch (err) {
-      return null;
-    }
-  }
-  // 所有未审核的试卷
-  public async getNoChkPaper() {
-    const { app } = this;
-    try {
-      const result: any = await app.mysql.query(
-        'select * from examination_paper where chkState = 0',
-      );
-      return result;
-    } catch (err) {
-      return null;
-    }
-  }
+
 }

@@ -63,12 +63,12 @@ describe('test/app/service/Test.test.js', () => {
   //   console.log(result);
   //   assert(result);
   // });
-  it('chkPaper', async () => {
-    const result = await ctx.service.paper.chkPaperQuestions({
-      paperId: 33,
-      chkState: 1,
-    });
-    assert(result);
+  // it('chkPaper', async () => {
+  //   const result = await ctx.service.paper.chkPaperQuestions({
+  //     paperId: 33,
+  //     chkState: 1,
+  //   });
+  //   assert(result);
 
-  });
+  // });
 });

@@ -41,9 +41,7 @@ export default class admin extends Controller {
   // 所有已审核的题目
   public async getAllChkQuestions() {
     const { ctx } = this;
-    const result = await ctx.service.admin.getAllChkQuestions(
-      ctx.request.body
-    );
+    const result = await ctx.service.admin.getAllChkQuestions(ctx.request.body);
     if (result) {
       ctx.success(result, '请求成功');
     } else {
@@ -84,6 +82,53 @@ export default class admin extends Controller {
     }
     const result = await ctx.service.admin.deleteQuestions({
       id,
+    });
+    if (result) {
+      ctx.success(null, '删除成功~');
+    } else {
+      ctx.fail('删除失败,请重新删除~');
+    }
+  }
+  // 审核试卷
+  public async chkPaper() {
+    const { ctx } = this;
+    const { paperId, chkState } = ctx.request.body;
+    const result = await ctx.service.admin.chkPaperQuestions({
+      paperId,
+      chkState,
+    });
+    if (result) {
+      ctx.success(result, '审核通过');
+    } else {
+      ctx.fail('失败~');
+    }
+  }
+  // 所有未审核的试卷
+  public async getNoChkPaper() {
+    const { ctx } = this;
+    const result = await ctx.service.admin.getNoChkPaper();
+    if (result) {
+      ctx.success(result, '请求成功');
+    } else {
+      ctx.fail('获取题目失败~');
+    }
+  }
+  // 所有已审核的试卷
+  public async getAllChkPaper() {
+    const { ctx } = this;
+    const result = await ctx.service.admin.getAllChkPaper();
+    if (result) {
+      ctx.success(result, '请求成功');
+    } else {
+      ctx.fail('获取题目失败~');
+    }
+  }
+  // 删除试卷
+  public async deletePaper() {
+    const { ctx } = this;
+    const { paperId } = ctx.request.body;
+    const result = await ctx.service.admin.deletePaper({
+      paperId,
     });
     if (result) {
       ctx.success(null, '删除成功~');

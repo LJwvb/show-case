@@ -34,9 +34,13 @@ export default (app: Application) => {
   // 删除题目
   router.post('/deleteQuestions', controller.admin.deleteQuestions);
   // 试卷审核
-  router.post('/chkPaper', controller.paper.chkPaper);
+  router.post('/chkPaper', controller.admin.chkPaper);
   // 所有未审核的试卷
-  router.get('/getNoChkPaper', controller.paper.getNoChkPaper);
+  router.get('/getNoChkPaper', controller.admin.getNoChkPaper);
+  // 所有已审核的试卷
+  router.get('/getAllChkPaper', controller.admin.getAllChkPaper);
+  // 删除试卷
+  router.post('/deletePaper', controller.admin.deletePaper);
 
   // todo 题目
   // 题目列表

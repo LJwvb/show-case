@@ -65,28 +65,4 @@ export default class paper extends Controller {
       ctx.fail('获取题目失败~');
     }
   }
-  // 审核试卷
-  public async chkPaper() {
-    const { ctx } = this;
-    const { paperId, chkState } = ctx.request.body;
-    const result = await ctx.service.paper.chkPaperQuestions({
-      paperId,
-      chkState,
-    });
-    if (result) {
-      ctx.success(result, '审核通过');
-    } else {
-      ctx.fail('失败~');
-    }
-  }
-  // 所有未审核的试卷
-  public async getNoChkPaper() {
-    const { ctx } = this;
-    const result = await ctx.service.paper.getNoChkPaper();
-    if (result) {
-      ctx.success(result, '请求成功');
-    } else {
-      ctx.fail('获取题目失败~');
-    }
-  }
 }

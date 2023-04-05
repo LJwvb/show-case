@@ -1,3 +1,4 @@
+/* eslint-disable comma-dangle */
 import { Service } from 'egg';
 interface IChkQuestions {
   id: number | string; // 题目ID
@@ -45,7 +46,7 @@ export default class admin extends Service {
       });
       // 获取所有未审核题目总数
       const count = await app.mysql.query(
-        'select count(*) as count from questions where chkState = 0',
+        'select count(*) as count from questions where chkState = 0'
       );
       return { result, total: count[0].count };
     } catch (err) {
@@ -85,7 +86,7 @@ export default class admin extends Service {
           await app.mysql.update(
             'ranking_list',
             { upload_ques_num: rankList.upload_ques_num + 1 },
-            { where: { username: creator } },
+            { where: { username: creator } }
           );
         }
       }
@@ -99,6 +100,64 @@ export default class admin extends Service {
     const { app } = this;
     try {
       const result = await app.mysql.delete('questions', params);
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 审核试卷
+  public async chkPaperQuestions(params) {
+    const { app } = this;
+    const { paperId, chkState } = params;
+    try {
+      const result = await app.mysql.update(
+        'examination_paper',
+        {
+          chkState,
+        },
+        {
+          where: {
+            paper_id: paperId,
+          },
+        }
+      );
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 所有未审核的试卷
+  public async getNoChkPaper() {
+    const { app } = this;
+    try {
+      const result: any = await app.mysql.query(
+        'select * from examination_paper where chkState = 0'
+      );
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 所有已审核的试卷
+  public async getAllChkPaper() {
+    const { app } = this;
+    // const { pageNo, pageSize } = params;
+    try {
+      const result = await app.mysql.select('examination_paper', {
+        where: { chkState: 1 },
+        // limit: pageSize,
+        // offset: (pageNo - 1) * pageSize,
+      });
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 删除试卷
+  public async deletePaper(params) {
+    const { app } = this;
+    try {
+      const result = await app.mysql.delete('examination_paper', params);
       return result;
     } catch (err) {
       return null;
