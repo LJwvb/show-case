@@ -37,8 +37,7 @@ export default class questions extends Service {
   // 获取题目
   public async getQuestions(params: IQuestion) {
     const { app } = this;
-    const { type, currentPage, pageSize, catalogID, refresh, ids } = params;
-    console.log('params', params);
+    const { type, catalogID, refresh, ids } = params;
     try {
       const subjectList: any = [];
       const allSubjectList: any = [];
@@ -49,8 +48,8 @@ export default class questions extends Service {
           where: {
             catalogID,
           },
-          limit: pageSize,
-          offset: (currentPage - 1) * pageSize,
+          // limit: pageSize,
+          // offset: (currentPage - 1) * pageSize,
         });
         const filterResult = result.filter((item: any) => item?.chkState === 1);
         filterResult.forEach(async (item: any) => {

@@ -77,15 +77,23 @@ export default class admin extends Service {
       const result = await app.mysql.update('questions', params, {
         where: { id: params.id },
       });
-      // 审核通过则更新排行榜上传题目数量
+      // 审核通过则更新排行榜上传题目数量和用户上传题目数量
       if (chkState === 1) {
         const rankList: any = await app.mysql.get('ranking_list', {
           username: creator,
         });
+        const user: any = await app.mysql.get('user', { username: creator });
         if (rankList) {
           await app.mysql.update(
             'ranking_list',
             { upload_ques_num: rankList.upload_ques_num + 1 },
+            { where: { username: creator } }
+          );
+        }
+        if (user) {
+          await app.mysql.update(
+            'user',
+            { approvedNums: user.approvedNums + 1 },
             { where: { username: creator } }
           );
         }

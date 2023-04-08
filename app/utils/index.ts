@@ -52,13 +52,13 @@ function getSubjectName(subjectID) {
       subjectName = 'HTML';
       break;
     case 3:
-      subjectName = 'Vue';
+      subjectName = 'Angular';
       break;
     case 4:
       subjectName = 'React';
       break;
     case 5:
-      subjectName = 'Angular';
+      subjectName = 'Vue';
       break;
     case 6:
       subjectName = 'Node';
@@ -115,7 +115,7 @@ export const subjectList = [
     subjectID: 2,
   },
   {
-    content: 'Vue',
+    content: 'Angular',
     subjectID: 3,
   },
   {
@@ -123,7 +123,7 @@ export const subjectList = [
     subjectID: 4,
   },
   {
-    content: 'Angular',
+    content: 'Vue',
     subjectID: 5,
   },
   {
@@ -155,13 +155,5 @@ export const subjectList = [
     subjectID: 12,
   },
 ];
-// 随机生成18位的uerId
-function randomUserId() {
-  const userId = Math.random()
-    .toString(36)
-    .substr(2, 18);
-  return userId;
 
-}
-
-export { getNowFormatDate, removePassword, getSubjectName, getCatalogName, randomUserId };
+export { getNowFormatDate, removePassword, getSubjectName, getCatalogName };

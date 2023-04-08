@@ -15,6 +15,7 @@ interface RegisterParams {
   ctime: string; // 创建时间
   avatar: string; // 头像
   last_login_time: string; // 最后登录时间
+  [key: string]: any; // 其他字段
 }
 interface CaptchaParams {
   width: number; // 宽度
@@ -58,7 +59,15 @@ export default class User extends Service {
     const { app } = this;
     const { phone } = params;
     try {
-      const result = await app.mysql.get('user', { phone });
+      const result: any = await app.mysql.get('user', { phone });
+      const { username } = result;
+      // 获取题目审核通过的数量
+      const approvedNums = await app.mysql.query(
+        `select count(*) from questions where creator = '${username}' and chkState = 1`,
+      );
+      result.approvedNums = approvedNums[0]['count(*)'];
+
+
       return result;
     } catch (err) {
       return null;
