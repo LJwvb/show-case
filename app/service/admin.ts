@@ -28,11 +28,10 @@ export default class admin extends Service {
   // 获取用户列表
   public async getUserList() {
     const { app } = this;
-
     try {
-      const result = await app.mysql.select('user');
-
-      return result;
+      const user = await app.mysql.select('user');
+      const admin = await app.mysql.select('admin');
+      return [...admin, ...user];
     } catch (err) {
       return null;
     }

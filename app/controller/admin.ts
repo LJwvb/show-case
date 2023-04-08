@@ -22,8 +22,8 @@ export default class admin extends Controller {
 
     if (result) {
       // 去除密码
-      const returnData = removePassword(result);
-      ctx.success(returnData, '请求成功');
+      // const returnData = removePassword(result);
+      ctx.success(result, '请求成功');
     } else {
       ctx.fail('获取用户列表失败');
     }
