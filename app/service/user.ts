@@ -1,6 +1,8 @@
 import { Service } from 'egg';
 import { createMathExpr } from 'svg-captcha';
 import md5 from 'md5';
+import { getNowFormatDate } from '../utils';
+
 
 interface LoginParams {
   password: string; // 密码
@@ -31,7 +33,15 @@ export default class User extends Service {
   public async login(params: LoginParams) {
     const { app } = this;
     try {
+      // 密码加密
+      params.password = md5(md5(params.password));
       const result = await app.mysql.get('user', params);
+      // 更新登录时间
+      await app.mysql.update('user', {
+        last_login_time: getNowFormatDate(),
+      }, {
+        where: { phone: params.phone },
+      });
       return result;
     } catch (err) {
       return null;
@@ -41,6 +51,8 @@ export default class User extends Service {
   public async register(params: RegisterParams) {
     const { app } = this;
     try {
+      // 密码加密
+      params.password = md5(md5(params.password));
       const result = await app.mysql.insert('user', params);
       // 往排行榜中插入这一条数据
       await app.mysql.insert('ranking_list', {
@@ -57,18 +69,23 @@ export default class User extends Service {
   // 获取用户信息
   public async getUserInfo(params) {
     const { app } = this;
-    const { phone } = params;
+    const { phone, username } = params;
     try {
-      const result: any = await app.mysql.get('user', { phone });
-      const { username } = result;
-      // 获取题目审核通过的数量
-      const approvedNums = await app.mysql.query(
-        `select count(*) from questions where creator = '${username}' and chkState = 1`,
-      );
-      result.approvedNums = approvedNums[0]['count(*)'];
+      if (phone) {
+        const result: any = await app.mysql.get('user', { phone });
+        const { username } = result;
+        // 获取题目审核通过的数量
+        const approvedNums = await app.mysql.query(
+          `select count(*) from questions where creator = '${username}' and chkState = 1`,
+        );
+        result.approvedNums = approvedNums[0]['count(*)'];
 
-
-      return result;
+        return result;
+      }
+      if (username) {
+        const result: any = await app.mysql.get('user', { username });
+        return result;
+      }
     } catch (err) {
       return null;
     }
@@ -78,6 +95,7 @@ export default class User extends Service {
     const { app } = this;
 
     try {
+      params.password = md5(md5(params.password));
       const result = await app.mysql.update('user', params, {
         where: { phone: params.phone },
       });
