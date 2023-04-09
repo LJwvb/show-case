@@ -14,6 +14,21 @@ export default class admin extends Controller {
       ctx.fail('账号或密码错误，登录失败');
     }
   }
+  // 修改密码
+  public async editAdminPassword() {
+    const { ctx } = this;
+    const { password } = ctx.request.body;
+    if (!password) {
+      ctx.fail('请填写完整信息~');
+      return;
+    }
+    const result = await ctx.service.admin.editAdminPassword(ctx.request.body);
+    if (result) {
+      ctx.success(null, '修改成功~');
+    } else {
+      ctx.fail('修改失败,请重新修改~');
+    }
+  }
   // 获取用户列表
   public async getUserList() {
     const { ctx } = this;
@@ -129,6 +144,19 @@ export default class admin extends Controller {
     const { paperId } = ctx.request.body;
     const result = await ctx.service.admin.deletePaper({
       paperId,
+    });
+    if (result) {
+      ctx.success(null, '删除成功~');
+    } else {
+      ctx.fail('删除失败,请重新删除~');
+    }
+  }
+  // 删除用户I
+  public async deleteUser() {
+    const { ctx } = this;
+    const { userId } = ctx.request.body;
+    const result = await ctx.service.admin.deleteUser({
+      userId,
     });
     if (result) {
       ctx.success(null, '删除成功~');

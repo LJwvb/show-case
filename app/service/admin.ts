@@ -1,5 +1,7 @@
 /* eslint-disable comma-dangle */
 import { Service } from 'egg';
+// import { getNowFormatDate } from '../utils';
+
 interface IChkQuestions {
   id: number | string; // 题目ID
   chkState?: 0 | 1 | 2; // 审核状态 0:未审核 1:审核通过 2:审核不通过
@@ -17,10 +19,34 @@ export default class admin extends Service {
     const { app } = this;
     try {
       const result = await app.mysql.get('admin', params);
+      // // 更新登录时间
+      // await app.mysql.update('admin', {
+      //   last_login_time: getNowFormatDate(),
+      // });
       return {
         ...result,
         isAdmin: true,
       };
+    } catch (err) {
+      return null;
+    }
+  }
+  // 修改密码
+  public async editAdminPassword(params) {
+    const { app } = this;
+    const { id, password } = params;
+    try {
+      console.log(params);
+      const result = await app.mysql.update(
+        'admin',
+        {
+          password,
+        },
+        {
+          where: { id },
+        }
+      );
+      return result;
     } catch (err) {
       return null;
     }
@@ -31,7 +57,7 @@ export default class admin extends Service {
     try {
       const user = await app.mysql.select('user');
       const admin = await app.mysql.select('admin');
-      return [...admin, ...user];
+      return [ ...admin, ...user ];
     } catch (err) {
       return null;
     }
@@ -167,6 +193,19 @@ export default class admin extends Service {
     try {
       const result = await app.mysql.delete('examination_paper', {
         paper_id: paperId,
+      });
+      return result;
+    } catch (err) {
+      return null;
+    }
+  }
+  // 删除用户
+  public async deleteUser(params) {
+    const { app } = this;
+    const { userId } = params;
+    try {
+      const result = await app.mysql.delete('user', {
+        userId,
       });
       return result;
     } catch (err) {

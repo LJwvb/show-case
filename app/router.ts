@@ -23,6 +23,8 @@ export default (app: Application) => {
   // todo admin
   // 管理员登录
   router.post('/adminLogin', controller.admin.adminLogin);
+  // 修改密码
+  router.post('/editAdminPassword', controller.admin.editAdminPassword);
   // 获取用户信息列表
   router.post('/getUserList', controller.admin.getUserList);
   // 获取未审核的题目
@@ -41,6 +43,8 @@ export default (app: Application) => {
   router.get('/getAllChkPaper', controller.admin.getAllChkPaper);
   // 删除试卷
   router.post('/deletePaper', controller.admin.deletePaper);
+  // 删除用户
+  router.post('/deleteUser', controller.admin.deleteUser);
 
   // todo 题目
   // 题目列表
