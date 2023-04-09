@@ -3,7 +3,6 @@ import { createMathExpr } from 'svg-captcha';
 import md5 from 'md5';
 import { getNowFormatDate } from '../utils';
 
-
 interface LoginParams {
   password: string; // 密码
   phone: string; // 手机号
@@ -37,11 +36,15 @@ export default class User extends Service {
       params.password = md5(md5(params.password));
       const result = await app.mysql.get('user', params);
       // 更新登录时间
-      await app.mysql.update('user', {
-        last_login_time: getNowFormatDate(),
-      }, {
-        where: { phone: params.phone },
-      });
+      await app.mysql.update(
+        'user',
+        {
+          last_login_time: getNowFormatDate(),
+        },
+        {
+          where: { phone: params.phone },
+        },
+      );
       return result;
     } catch (err) {
       return null;
@@ -95,7 +98,10 @@ export default class User extends Service {
     const { app } = this;
 
     try {
-      params.password = md5(md5(params.password));
+      if (params?.password) {
+        // 密码加密
+        params.password = md5(md5(params.password));
+      }
       const result = await app.mysql.update('user', params, {
         where: { phone: params.phone },
       });
