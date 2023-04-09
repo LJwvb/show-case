@@ -318,22 +318,10 @@ export default class questions extends Service {
   // 浏览数
   public async addBrowsesNum(params) {
     const { app } = this;
-    const { id, username } = params;
+    const { id } = params;
     try {
-      // 获取当前题目的浏览数量
       const questions: any = await app.mysql.get('questions', { id });
-      // 获取用户浏览的题目id
-      const user: any = await app.mysql.get('user', {
-        username,
-      });
-      const browseTopicsId = user?.browseTopicsId?.split(',');
-      browseTopicsId.push(id);
-      const idStr = browseTopicsId.join(',');
-      await app.mysql.update(
-        'user',
-        { browseTopicsId: idStr },
-        { where: { username } },
-      );
+
       const result = await app.mysql.update(
         'questions',
         { browses_num: questions.browses_num + 1 },
