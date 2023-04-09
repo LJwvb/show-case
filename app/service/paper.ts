@@ -23,7 +23,7 @@ export default class paper extends Service {
         );
         const purviewPaper = result.filter((item: any) => item.purview === -1); // 官方的试卷
         const personPaper = result.filter(
-          (item: any) => item.purview === 3 && item?.chkState === 1,
+          (item: any) => item.purview === 1 && item?.chkState === 1,
         ); // 个人审核通过公开的试卷
 
         return {
