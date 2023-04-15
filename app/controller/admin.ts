@@ -6,6 +6,11 @@ export default class admin extends Controller {
   // 管理员登录
   public async adminLogin() {
     const { ctx } = this;
+    const { name, password } = ctx.request.body;
+    if (!name || !password) {
+      ctx.fail('请填写完整信息~');
+      return;
+    }
     const data = await ctx.service.admin.adminLogin(ctx.request.body);
     if (data) {
       const returnData = removePassword(data);
