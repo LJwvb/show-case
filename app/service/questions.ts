@@ -248,24 +248,27 @@ export default class questions extends Service {
       });
       // 获取之前点赞的题目id
       const user: any = await app.mysql.get('user', { username });
-      const likeTopicsId = user?.likeTopicsId?.split(',');
-      likeTopicsId.push(id);
-      const idStr = likeTopicsId.join(',');
-      await app.mysql.update(
-        'user',
-        { likeTopicsId: idStr },
-        { where: { username } },
-      );
-      await app.mysql.update(
-        'user',
-        { like_ques_num: user.like_ques_num + 1 },
-        { where: { username: creator } },
-      );
-      await app.mysql.update(
-        'ranking_list',
-        { get_likes_num: rankList.get_likes_num + 1 },
-        { where: { username: creator } },
-      );
+      if (user) {
+        const likeTopicsId = user?.likeTopicsId?.split(',');
+        likeTopicsId.push(id);
+        const idStr = likeTopicsId.join(',');
+        await app.mysql.update(
+          'user',
+          { likeTopicsId: idStr },
+          { where: { username } },
+        );
+        await app.mysql.update(
+          'user',
+          { like_ques_num: user.like_ques_num + 1 },
+          { where: { username: creator } },
+        );
+        await app.mysql.update(
+          'ranking_list',
+          { get_likes_num: rankList.get_likes_num + 1 },
+          { where: { username: creator } },
+        );
+      }
+
       return result;
     } catch (err) {
       return null;
