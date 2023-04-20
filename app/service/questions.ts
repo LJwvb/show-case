@@ -37,7 +37,7 @@ export default class questions extends Service {
   // 获取题目
   public async getQuestions(params: IQuestion) {
     const { app } = this;
-    const { type, catalogID, refresh, ids } = params;
+    const { type, catalogID, refresh, ids, pageSize = 10, currentPage } = params;
     try {
       const subjectList: any = [];
       const allSubjectList: any = [];
@@ -48,9 +48,10 @@ export default class questions extends Service {
           where: {
             catalogID,
           },
-          // limit: pageSize,
-          // offset: (currentPage - 1) * pageSize,
+          limit: pageSize,
+          offset: (currentPage - 1) * pageSize,
         });
+        const total = await app.mysql.count('questions');
         const filterResult = result.filter((item: any) => item?.chkState === 1);
         filterResult.forEach(async (item: any) => {
           item.tags = item?.tags?.split(',');
@@ -111,6 +112,7 @@ export default class questions extends Service {
         });
         return {
           result: allSubjectList[0],
+          total,
         };
       }
 
@@ -200,9 +202,7 @@ export default class questions extends Service {
         // 根据时间排序
         subjectList.forEach((item: any) => {
           item.catalogList.forEach((cat: any) => {
-            cat.questionList.sort(
-              (a: any, b: any) => b.addDate - a.addDate,
-            );
+            cat.questionList.sort((a: any, b: any) => b.addDate - a.addDate);
           });
         });
         return {
