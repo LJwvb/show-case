@@ -197,6 +197,14 @@ export default class questions extends Service {
             (a: any, b: any) => a.catalog.catalogID - b.catalog.catalogID,
           );
         });
+        // 根据时间排序
+        subjectList.forEach((item: any) => {
+          item.catalogList.forEach((cat: any) => {
+            cat.questionList.sort(
+              (a: any, b: any) => b.addDate - a.addDate,
+            );
+          });
+        });
         return {
           result: subjectList,
         };
@@ -384,7 +392,6 @@ export default class questions extends Service {
         'select * from questions where chkState = 1',
       );
       const question = result.find((item: any) => item.id === id)?.question;
-      console.log(question);
       const questions = result.map((item: any) => {
         return {
           id: item.id,

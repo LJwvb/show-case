@@ -1,6 +1,6 @@
 /* eslint-disable comma-dangle */
 import { Service } from 'egg';
-// import { getNowFormatDate } from '../utils';
+import { getNowFormatDate } from '../utils';
 
 interface IChkQuestions {
   id: number | string; // 题目ID
@@ -18,11 +18,18 @@ export default class admin extends Service {
   public async adminLogin(params) {
     const { app } = this;
     try {
-      const result = await app.mysql.get('admin', params);
-      // // 更新登录时间
-      // await app.mysql.update('admin', {
-      //   last_login_time: getNowFormatDate(),
-      // });
+      const result: any = await app.mysql.get('admin', params);
+      // 更新登录时间
+      await app.mysql.update(
+        'admin',
+        {
+          last_login_time: getNowFormatDate(),
+        },
+        {
+          where: { id: result.id },
+        }
+      );
+
       return {
         ...result,
         isAdmin: true,
@@ -36,7 +43,6 @@ export default class admin extends Service {
     const { app } = this;
     const { id, password } = params;
     try {
-      console.log(params);
       const result = await app.mysql.update(
         'admin',
         {
@@ -57,7 +63,7 @@ export default class admin extends Service {
     try {
       const user = await app.mysql.select('user');
       const admin = await app.mysql.select('admin');
-      return [ ...admin, ...user ];
+      return [...admin, ...user];
     } catch (err) {
       return null;
     }

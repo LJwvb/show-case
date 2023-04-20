@@ -34,7 +34,14 @@ export default class User extends Controller {
     const userInfoUserName = await ctx.service.user.getUserInfo({
       username,
     });
-    const defaultAvatar = 'https://img95.699pic.com/xsj/1p/0r/j2.jpg%21/fh/300';
+    let defaultAvatar = '';
+    const ids = Array.from({ length: 1024 }, (_, i) => i + 1);
+    const randomIds = ids.sort(() => 0.5 - Math.random());
+
+    randomIds.forEach((id: number) => {
+      defaultAvatar = `https://picsum.photos/id/${id}/300/300`;
+    });
+
     if (!email || !password) {
       ctx.fail('账号密码不能为空');
       return;

@@ -82,4 +82,12 @@ export default (app: Application) => {
   // todo 排行榜
   // 获取排行榜
   router.get('/getRankingList', controller.rankingList.getRankingList);
+
+  // todo 评论
+  // 添加评论
+  router.post('/addComment', controller.comment.addComment);
+  // 获取评论列表
+  router.get('/getCommentList', controller.comment.getCommentList);
+  // 删除评论
+  router.post('/deleteComment', controller.comment.deleteComment);
 };

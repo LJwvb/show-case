@@ -145,7 +145,6 @@ export default class User extends Service {
   public async getUserUploadQues(params) {
     const { app } = this;
     const { username } = params;
-    console.log(username);
     try {
       const result: any = await app.mysql.select('questions', {
         where: { creator: username },
