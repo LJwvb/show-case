@@ -7,6 +7,7 @@ interface IQuestion {
   currentPage: number; // 当前页
   pageSize: number; // 每页条数
   catalogID: number; // 章节ID
+  subjectID?: number; // 科目ID
   refresh?: boolean; // 是否刷新
   ids?: string; // 题目ID
 }
@@ -37,16 +38,29 @@ export default class questions extends Service {
   // 获取题目
   public async getQuestions(params: IQuestion) {
     const { app } = this;
-    const { type, catalogID, refresh, ids, pageSize = 10, currentPage } = params;
+    const {
+      type,
+      catalogID: catalogIDParams,
+      subjectID: subjectIDParams,
+      refresh,
+      ids,
+      pageSize = 10,
+      currentPage,
+    } = params;
     try {
-      const subjectList: any = [];
       const allSubjectList: any = [];
       const userSubjectList: any = [];
+      const homeSubjectList: any = [];
+
+      const subjectIdList: any = [];
+      const subjectNameList: any = [];
+      const catalogIdList: any = [];
+      const catalogNameList: any = [];
 
       if (type === 'all') {
         const result = await app.mysql.select('questions', {
           where: {
-            catalogID,
+            catalogID: catalogIDParams,
           },
           limit: pageSize,
           offset: (currentPage - 1) * pageSize,
@@ -117,14 +131,32 @@ export default class questions extends Service {
       }
 
       if (type === 'home') {
-        const result = await app.mysql.select('questions');
-        // 去除未审核的题目,把tags转换成数组
-        const filterResult = result.filter((item: any) => item?.chkState === 1);
-        filterResult.forEach(async (item: any) => {
+        console.log('home', params);
+        const result: any = await app.mysql.query(
+          `select * from questions where catalogID = ${catalogIDParams} and subjectID = ${subjectIDParams} and chkState = 1 limit ${pageSize} offset ${
+            (currentPage - 1) * pageSize
+          }`,
+        );
+        result.forEach((item: any) => {
           item.tags = item?.tags?.split(',');
+          homeSubjectList.push(item);
+        });
+
+        const result1: any = await app.mysql.select('questions', {
+          where: {
+            chkState: 1,
+          },
+        });
+        result1.forEach((item: any) => {
+          if (subjectIdList.indexOf(item.subjectID) === -1) {
+            subjectIdList.push(item.subjectID);
+          }
+          if (catalogIdList.indexOf(item.catalogID) === -1) {
+            catalogIdList.push(item.catalogID);
+          }
           if (item?.browses_num > 10 && item?.catalogID === 0) {
             item.catalogID = 1;
-            await app.mysql.update(
+            app.mysql.update(
               'questions',
               {
                 catalogID: 1,
@@ -137,80 +169,131 @@ export default class questions extends Service {
             );
           }
         });
-        filterResult.forEach((item: any) => {
-          const { subjectID, catalogID } = item;
-          // 如果是全部题目，题目中catalogID为0的所有题目都组合为一个章节
-
-          const subjectIndex = subjectList.findIndex(
-            (sub: any) => sub.subject.subjectID === subjectID,
-          );
-          if (subjectIndex === -1) {
-            subjectList.push({
-              subject: {
-                subjectID,
-                subjectName: getSubjectName(subjectID),
-              },
-              catalogList: [
-                {
-                  catalog: {
-                    catalogID,
-                    catalogName: getCatalogName(catalogID),
-                  },
-                  questionList: [ item ],
-                },
-              ],
+        subjectIdList
+          .sort((a: any, b: any) => a - b)
+          .forEach((subjectID: any) => {
+            subjectNameList.push({
+              subjectID,
+              subjectName: getSubjectName(subjectID),
             });
-          } else {
-            const catalogIndex = subjectList[
-              subjectIndex
-            ].catalogList.findIndex(
-              (cat: any) => cat.catalog.catalogID === catalogID,
-            );
-            if (catalogIndex === -1) {
-              subjectList[subjectIndex].catalogList.push({
-                catalog: {
-                  catalogID,
-                  catalogName: getCatalogName(catalogID),
-                },
-                questionList: [ item ],
-              });
-            } else {
-              subjectList[subjectIndex].catalogList[
-                catalogIndex
-              ].questionList.push(item);
-            }
-          }
-        });
-        // 每个科目下返回3个题目
-        subjectList.forEach((item: any) => {
-          const { catalogList } = item;
-          catalogList.forEach((cat: any) => {
-            const { questionList } = cat;
-            cat.questionList = questionList.slice(0, 3);
           });
-        });
-        // 根据科目ID排序
-        subjectList.sort(
-          (a: any, b: any) => a.subject.subjectID - b.subject.subjectID,
-        );
-        // 根据章节ID排序
-        subjectList.forEach((item: any) => {
-          item.catalogList.sort(
-            (a: any, b: any) => a.catalog.catalogID - b.catalog.catalogID,
-          );
-        });
-        // 根据时间排序
-        subjectList.forEach((item: any) => {
-          item.catalogList.forEach((cat: any) => {
-            cat.questionList.sort((a: any, b: any) => b.addDate - a.addDate);
+        catalogIdList
+          .sort((a: any, b: any) => a - b)
+          .forEach((catalogID: any) => {
+            catalogNameList.push({
+              catalogID,
+              catalogName: getCatalogName(catalogID),
+            });
           });
-        });
+
+        // filterResult.forEach(async (item: any) => {
+        //   const { subjectID } = item;
+        //   // 先获取所有的科目ID,相同的不再添加
+        //   if (subjectIdList.indexOf(subjectID) === -1) {
+        //     subjectIdList.push(subjectID);
+        //   }
+        //   item.tags = item?.tags?.split(',');
+        //   if (item?.browses_num > 10 && item?.catalogID === 0) {
+        //     item.catalogID = 1;
+        //     await app.mysql.update(
+        //       'questions',
+        //       {
+        //         catalogID: 1,
+        //       },
+        //       {
+        //         where: {
+        //           id: item.id,
+        //         },
+        //       },
+        //     );
+        //   }
+        // });
+
+        // filterResult.forEach((item: any) => {
+        //   // 获取科目名称
+        //   const { subjectID, catalogID } = item;
+
+        //   const subjectIndex = subjectList.findIndex(
+        //     (sub: any) => sub.subject.subjectID === subjectID,
+        //   );
+        //   if (subjectIndex === -1) {
+        //     subjectList.push({
+        //       subject: {
+        //         subjectID,
+        //         subjectName: getSubjectName(subjectID),
+        //       },
+        //       catalogList: [
+        //         {
+        //           catalog: {
+        //             catalogID,
+        //             catalogName: getCatalogName(catalogID),
+        //           },
+        //           questionList: [ item ],
+        //         },
+        //       ],
+        //     });
+        //   } else {
+        //     const catalogIndex = subjectList[
+        //       subjectIndex
+        //     ].catalogList.findIndex(
+        //       (cat: any) => cat.catalog.catalogID === catalogID,
+        //     );
+        //     if (catalogIndex === -1) {
+        //       subjectList[subjectIndex].catalogList.push({
+        //         catalog: {
+        //           catalogID,
+        //           catalogName: getCatalogName(catalogID),
+        //         },
+        //         questionList: [ item ],
+        //       });
+        //     } else {
+        //       subjectList[subjectIndex].catalogList[
+        //         catalogIndex
+        //       ].questionList.push(item);
+        //     }
+        //   }
+        // });
+        // // 每个科目下返回3个题目
+        // subjectList.forEach((item: any) => {
+        //   const { catalogList } = item;
+        //   catalogList.forEach((cat: any) => {
+        //     const { questionList } = cat;
+        //     cat.questionList = questionList.slice(0, 3);
+        //   });
+        // });
+        // // // 根据科目ID排序
+        // // subjectList.sort(
+        // //   (a: any, b: any) => a.subject.subjectID - b.subject.subjectID,
+        // // );
+        // // 根据章节ID排序
+        // subjectList.forEach((item: any) => {
+        //   item.catalogList.sort(
+        //     (a: any, b: any) => a.catalog.catalogID - b.catalog.catalogID,
+        //   );
+        // });
+        // // 根据时间排序
+        // subjectList.forEach((item: any) => {
+        //   item.catalogList.forEach((cat: any) => {
+        //     cat.questionList.sort((a: any, b: any) => b.addDate - a.addDate);
+        //   });
+        // });
+        // // 把subjectIdList转换成科目名称
+        // subjectIdList.sort((a: any, b: any) => a - b);
+        // .forEach((item: string, index: number) => {
+        //   subjectIdList[index] = getSubjectName(item);
+        // });
+
         return {
-          result: subjectList,
+          result: homeSubjectList,
+          subjectNameList,
+          catalogNameList,
         };
       }
       if (type === 'user') {
-        const result = await app.mysql.select('questions');
+        const result = await app.mysql.select('questions', {
+          limit: pageSize,
+          offset: (currentPage - 1) * pageSize,
+        });
         const questionIds: any = ids && ids.split(',');
         questionIds.forEach((id: any) => {
           const question = result.find((item: any) => item.id === Number(id));
