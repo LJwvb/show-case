@@ -65,7 +65,9 @@ export default class questions extends Service {
           limit: pageSize,
           offset: (currentPage - 1) * pageSize,
         });
-        const total = await app.mysql.count('questions');
+        const total = await app.mysql.count('questions', {
+          catalogID: catalogIDParams,
+        });
         const filterResult = result.filter((item: any) => item?.chkState === 1);
         filterResult.forEach(async (item: any) => {
           item.tags = item?.tags?.split(',');
@@ -186,103 +188,6 @@ export default class questions extends Service {
             });
           });
 
-        // filterResult.forEach(async (item: any) => {
-        //   const { subjectID } = item;
-        //   // 先获取所有的科目ID,相同的不再添加
-        //   if (subjectIdList.indexOf(subjectID) === -1) {
-        //     subjectIdList.push(subjectID);
-        //   }
-        //   item.tags = item?.tags?.split(',');
-        //   if (item?.browses_num > 10 && item?.catalogID === 0) {
-        //     item.catalogID = 1;
-        //     await app.mysql.update(
-        //       'questions',
-        //       {
-        //         catalogID: 1,
-        //       },
-        //       {
-        //         where: {
-        //           id: item.id,
-        //         },
-        //       },
-        //     );
-        //   }
-        // });
-
-        // filterResult.forEach((item: any) => {
-        //   // 获取科目名称
-        //   const { subjectID, catalogID } = item;
-
-        //   const subjectIndex = subjectList.findIndex(
-        //     (sub: any) => sub.subject.subjectID === subjectID,
-        //   );
-        //   if (subjectIndex === -1) {
-        //     subjectList.push({
-        //       subject: {
-        //         subjectID,
-        //         subjectName: getSubjectName(subjectID),
-        //       },
-        //       catalogList: [
-        //         {
-        //           catalog: {
-        //             catalogID,
-        //             catalogName: getCatalogName(catalogID),
-        //           },
-        //           questionList: [ item ],
-        //         },
-        //       ],
-        //     });
-        //   } else {
-        //     const catalogIndex = subjectList[
-        //       subjectIndex
-        //     ].catalogList.findIndex(
-        //       (cat: any) => cat.catalog.catalogID === catalogID,
-        //     );
-        //     if (catalogIndex === -1) {
-        //       subjectList[subjectIndex].catalogList.push({
-        //         catalog: {
-        //           catalogID,
-        //           catalogName: getCatalogName(catalogID),
-        //         },
-        //         questionList: [ item ],
-        //       });
-        //     } else {
-        //       subjectList[subjectIndex].catalogList[
-        //         catalogIndex
-        //       ].questionList.push(item);
-        //     }
-        //   }
-        // });
-        // // 每个科目下返回3个题目
-        // subjectList.forEach((item: any) => {
-        //   const { catalogList } = item;
-        //   catalogList.forEach((cat: any) => {
-        //     const { questionList } = cat;
-        //     cat.questionList = questionList.slice(0, 3);
-        //   });
-        // });
-        // // // 根据科目ID排序
-        // // subjectList.sort(
-        // //   (a: any, b: any) => a.subject.subjectID - b.subject.subjectID,
-        // // );
-        // // 根据章节ID排序
-        // subjectList.forEach((item: any) => {
-        //   item.catalogList.sort(
-        //     (a: any, b: any) => a.catalog.catalogID - b.catalog.catalogID,
-        //   );
-        // });
-        // // 根据时间排序
-        // subjectList.forEach((item: any) => {
-        //   item.catalogList.forEach((cat: any) => {
-        //     cat.questionList.sort((a: any, b: any) => b.addDate - a.addDate);
-        //   });
-        // });
-        // // 把subjectIdList转换成科目名称
-        // subjectIdList.sort((a: any, b: any) => a - b);
-        // .forEach((item: string, index: number) => {
-        //   subjectIdList[index] = getSubjectName(item);
-        // });
-
         return {
           result: homeSubjectList,
           subjectNameList,
@@ -290,19 +195,22 @@ export default class questions extends Service {
         };
       }
       if (type === 'user') {
-        const result = await app.mysql.select('questions', {
-          limit: pageSize,
-          offset: (currentPage - 1) * pageSize,
-        });
         const questionIds: any = ids && ids.split(',');
-        questionIds.forEach((id: any) => {
-          const question = result.find((item: any) => item.id === Number(id));
-          if (question) {
-            userSubjectList.push(question);
-          }
+        const result: any = await app.mysql.query(
+          `select * from questions where id in (${questionIds}) and chkState = 1 limit ${pageSize} offset ${
+            (currentPage - 1) * pageSize
+          }`,
+        );
+        const total = await app.mysql.count('questions', {
+          id: questionIds,
+        });
+        result.forEach((item: any) => {
+          item.tags = item?.tags?.split(',');
+          userSubjectList.push(item);
         });
         return {
           result: userSubjectList,
+          total,
         };
       }
     } catch (err) {
@@ -511,56 +419,118 @@ export default class questions extends Service {
   // 搜索题目
   public async searchQuestions(params) {
     const { app } = this;
-    const { keyword, questionType, difficulty } = params;
+    const {
+      keyword,
+      questionType,
+      difficulty,
+      currentPage,
+      pageSize = 10,
+    } = params;
     try {
       // 只有关键字
       if (keyword && !questionType && !difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where question like '%${keyword}%'`,
+          `select * from questions where question like '%${keyword}%' limit ${pageSize} offset ${
+            (currentPage - 1) * pageSize
+          }`,
         );
-        return result;
+        const total = await app.mysql.query(
+          `select count(*) from questions where question like '%${keyword}%'`,
+        );
+        return {
+          result,
+          total: total[0]['count(*)'],
+        };
       }
       // 只有题型
       if (!keyword && questionType && !difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where questionType = '${questionType}'`,
+          `select * from questions where questionType = '${questionType}' limit ${pageSize} offset ${
+            (currentPage - 1) * pageSize
+          }`,
         );
-        return result;
+        const total = await app.mysql.query(
+          `select count(*) from questions where questionType = '${questionType}'`,
+        );
+        return {
+          result,
+          total: total[0]['count(*)'],
+        };
       }
       // 只有难度
       if (!keyword && !questionType && difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where difficulty = '${difficulty}'`,
+          `select * from questions where difficulty = '${difficulty}' limit ${pageSize} offset ${
+            (currentPage - 1) * pageSize
+          }`,
         );
-        return result;
+        const total = await app.mysql.query(
+          `select count(*) from questions where difficulty = '${difficulty}'`,
+        );
+        return {
+          result,
+          total: total[0]['count(*)'],
+        };
       }
       // 题型和难度
       if (!keyword && questionType && difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where questionType = '${questionType}' and difficulty = '${difficulty}'`,
+          `select * from questions where questionType = '${questionType}' and difficulty = '${difficulty}' limit ${pageSize} offset ${
+            (currentPage - 1) * pageSize
+          }`,
         );
-        return result;
+        const total = await app.mysql.query(
+          `select count(*) from questions where questionType = '${questionType}' and difficulty = '${difficulty}'`,
+        );
+        return {
+          result,
+          total: total[0]['count(*)'],
+        };
       }
       // 关键字和题型
       if (keyword && questionType && !difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}'`,
+          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}' limit ${pageSize} offset ${
+            (currentPage - 1) * pageSize
+          }`,
         );
-        return result;
+        const total = await app.mysql.query(
+          `select count(*) from questions where question like '%${keyword}%' and questionType = '${questionType}'`,
+        );
+        return {
+          result,
+          total: total[0]['count(*)'],
+        };
       }
       // 关键字和难度
       if (keyword && !questionType && difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where question like '%${keyword}%' and difficulty = '${difficulty}'`,
+          `select * from questions where question like '%${keyword}%' and difficulty = '${difficulty}' limit ${pageSize} offset ${
+            (currentPage - 1) * pageSize
+          }`,
         );
-        return result;
+        const total = await app.mysql.query(
+          `select count(*) from questions where question like '%${keyword}%' and difficulty = '${difficulty}'`,
+        );
+        return {
+          result,
+          total: total[0]['count(*)'],
+        };
       }
       // 题型和难度和关键字
       if (keyword && questionType && difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}' and difficulty = '${difficulty}'`,
+          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}' and difficulty = '${difficulty}' limit ${pageSize} offset ${
+            (currentPage - 1) * pageSize
+          }`,
         );
-        return result;
+        const total = await app.mysql.query(
+          `select count(*) from questions where question like '%${keyword}%' and questionType = '${questionType}' and difficulty = '${difficulty}'`,
+        );
+        return {
+          result,
+          total: total[0]['count(*)'],
+        };
       }
     } catch (err) {
       return null;

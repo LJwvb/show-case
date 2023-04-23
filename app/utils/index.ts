@@ -155,5 +155,13 @@ export const subjectList = [
     subjectID: 12,
   },
 ];
+const transFromName = (chkState: number) => {
+  if (chkState === 0) {
+    return '未审核通过的题目';
+  }
+  if (chkState === 1) {
+    return '审核通过的题目';
+  }
+};
 
-export { getNowFormatDate, removePassword, getSubjectName, getCatalogName };
+export { getNowFormatDate, removePassword, getSubjectName, getCatalogName, transFromName };

@@ -1,7 +1,7 @@
 import { Service } from 'egg';
 import { createMathExpr } from 'svg-captcha';
 import md5 from 'md5';
-import { getNowFormatDate } from '../utils';
+import { getNowFormatDate, transFromName } from '../utils';
 
 interface LoginParams {
   password: string; // 密码
@@ -144,15 +144,32 @@ export default class User extends Service {
   // 获取用户上传的题目
   public async getUserUploadQues(params) {
     const { app } = this;
-    const { username } = params;
+    const { username, currentPage, pageSize, chkState } = params;
     try {
+      const userUpQuestions:any = [];
       const result: any = await app.mysql.select('questions', {
-        where: { creator: username },
+        where: { creator: username, chkState },
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
       });
-      // 区分未审核和审核通过的题目
-      const uncheck = result.filter((item: any) => item.chkState === 0);
-      const checked = result.filter((item: any) => item.chkState === 1);
-      return { uncheck, checked };
+      console.log(params);
+      userUpQuestions.push({
+        type: transFromName(0),
+        result: chkState === 0 ? result : [],
+      }, {
+        type: transFromName(1),
+        result: chkState === 1 ? result : [],
+      },
+      );
+      const total = await app.mysql.count('questions', {
+        creator: username,
+        chkState,
+      });
+      return {
+        total,
+        data: userUpQuestions,
+
+      };
     } catch (err) {
       return null;
     }

@@ -133,12 +133,7 @@ export default class questions extends Controller {
   // 搜索题目
   public async searchQuestions() {
     const { ctx } = this;
-    const { keyword, questionType, difficulty } = ctx.request.body;
-    const result = await ctx.service.questions.searchQuestions({
-      keyword,
-      questionType,
-      difficulty,
-    });
+    const result = await ctx.service.questions.searchQuestions(ctx.request.body);
     if (result) {
       ctx.success(result, '请求成功');
     } else {
