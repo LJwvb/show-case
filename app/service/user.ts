@@ -152,7 +152,6 @@ export default class User extends Service {
         limit: pageSize,
         offset: (currentPage - 1) * pageSize,
       });
-      console.log(params);
       userUpQuestions.push({
         type: transFromName(0),
         result: chkState === 0 ? result : [],

@@ -133,7 +133,6 @@ export default class questions extends Service {
       }
 
       if (type === 'home') {
-        console.log('home', params);
         const result: any = await app.mysql.query(
           `select * from questions where catalogID = ${catalogIDParams} and subjectID = ${subjectIDParams} and chkState = 1 limit ${pageSize} offset ${
             (currentPage - 1) * pageSize
