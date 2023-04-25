@@ -67,6 +67,7 @@ export default class User extends Controller {
       uploadTopicsId: '',
       approvedNums: 0,
       personalIntroduction: '',
+      like_ques_num: 0,
       upload_ques_num: 0,
     });
     if (result) {
