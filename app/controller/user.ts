@@ -63,6 +63,11 @@ export default class User extends Controller {
       ctime: getNowFormatDate(),
       last_login_time: getNowFormatDate(),
       avatar: defaultAvatar,
+      likeTopicsId: '',
+      uploadTopicsId: '',
+      approvedNums: 0,
+      personalIntroduction: '',
+      upload_ques_num: 0,
     });
     if (result) {
       ctx.success(null, '注册成功');

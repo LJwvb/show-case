@@ -42,13 +42,12 @@ export default class questions extends Service {
       type,
       catalogID: catalogIDParams,
       subjectID: subjectIDParams,
-      refresh,
       ids,
       pageSize = 10,
       currentPage,
     } = params;
     try {
-      const allSubjectList: any = [];
+      // const allSubjectList: any = [];
       const userSubjectList: any = [];
       const homeSubjectList: any = [];
 
@@ -60,20 +59,29 @@ export default class questions extends Service {
       if (type === 'all') {
         const result = await app.mysql.select('questions', {
           where: {
-            catalogID: catalogIDParams,
+            subjectID: subjectIDParams,
           },
           limit: pageSize,
           offset: (currentPage - 1) * pageSize,
         });
         const total = await app.mysql.count('questions', {
-          catalogID: catalogIDParams,
+          subjectID: subjectIDParams,
         });
-        const filterResult = result.filter((item: any) => item?.chkState === 1);
-        filterResult.forEach(async (item: any) => {
-          item.tags = item?.tags?.split(',');
+        const chkStateQuestion: any = await app.mysql.select('questions', {
+          where: {
+            chkState: 1,
+          },
+        });
+        chkStateQuestion.forEach((item: any) => {
+          if (subjectIdList.indexOf(item.subjectID) === -1) {
+            subjectIdList.push(item.subjectID);
+          }
+          if (catalogIdList.indexOf(item.catalogID) === -1) {
+            catalogIdList.push(item.catalogID);
+          }
           if (item?.browses_num > 10 && item?.catalogID === 0) {
             item.catalogID = 1;
-            await app.mysql.update(
+            app.mysql.update(
               'questions',
               {
                 catalogID: 1,
@@ -86,48 +94,18 @@ export default class questions extends Service {
             );
           }
         });
-        const allQuestionList = refresh
-          ? filterResult
-            .filter((item: any) => item?.catalogID === 0)
-            .sort(() => Math.random() - 0.5)
-          : filterResult.filter((item: any) => item?.catalogID === 0);
-        const allQuestionList1 = refresh
-          ? filterResult
-            .filter((item: any) => item?.catalogID === 1)
-            .sort(() => Math.random() - 0.5)
-          : filterResult.filter((item: any) => item?.catalogID === 1);
-        const allQuestionList2 = refresh
-          ? filterResult
-            .filter((item: any) => item?.catalogID === 2)
-            .sort(() => Math.random() - 0.5)
-          : filterResult.filter((item: any) => item?.catalogID === 2);
-        allSubjectList.push({
-          list: [
-            {
-              catalog: {
-                catalogID: 0,
-                catalogName: '最新',
-              },
-              questionList: allQuestionList,
-            },
-            {
-              catalog: {
-                catalogID: 1,
-                catalogName: '最热',
-              },
-              questionList: allQuestionList1,
-            },
-            {
-              catalog: {
-                catalogID: 2,
-                catalogName: '精选',
-              },
-              questionList: allQuestionList2,
-            },
-          ],
-        });
+        subjectIdList
+          .sort((a: any, b: any) => a - b)
+          .forEach((subjectID: any) => {
+            subjectNameList.push({
+              subjectID,
+              subjectName: getSubjectName(subjectID),
+              item: result.filter((item: any) => item.subjectID === subjectID),
+            });
+          });
+
         return {
-          result: allSubjectList[0],
+          result: subjectNameList,
           total,
         };
       }
@@ -143,12 +121,12 @@ export default class questions extends Service {
           homeSubjectList.push(item);
         });
 
-        const result1: any = await app.mysql.select('questions', {
+        const chkStateQuestion: any = await app.mysql.select('questions', {
           where: {
             chkState: 1,
           },
         });
-        result1.forEach((item: any) => {
+        chkStateQuestion.forEach((item: any) => {
           if (subjectIdList.indexOf(item.subjectID) === -1) {
             subjectIdList.push(item.subjectID);
           }
