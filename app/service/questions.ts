@@ -67,18 +67,7 @@ export default class questions extends Service {
         const total = await app.mysql.count('questions', {
           subjectID: subjectIDParams,
         });
-        const chkStateQuestion: any = await app.mysql.select('questions', {
-          where: {
-            chkState: 1,
-          },
-        });
-        chkStateQuestion.forEach((item: any) => {
-          if (subjectIdList.indexOf(item.subjectID) === -1) {
-            subjectIdList.push(item.subjectID);
-          }
-          if (catalogIdList.indexOf(item.catalogID) === -1) {
-            catalogIdList.push(item.catalogID);
-          }
+        result.forEach((item: any) => {
           if (item?.browses_num > 10 && item?.catalogID === 0) {
             item.catalogID = 1;
             app.mysql.update(
@@ -94,18 +83,10 @@ export default class questions extends Service {
             );
           }
         });
-        subjectIdList
-          .sort((a: any, b: any) => a - b)
-          .forEach((subjectID: any) => {
-            subjectNameList.push({
-              subjectID,
-              subjectName: getSubjectName(subjectID),
-              item: result.filter((item: any) => item.subjectID === subjectID),
-            });
-          });
+
 
         return {
-          result: subjectNameList,
+          result,
           total,
         };
       }
