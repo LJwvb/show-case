@@ -28,9 +28,9 @@ export default (app: Application) => {
   // 获取用户信息列表
   router.post('/getUserList', controller.admin.getUserList);
   // 获取未审核的题目
-  router.get('/getNoChkQuestions', controller.admin.getNoChkQuestions);
+  router.post('/getNoChkQuestions', controller.admin.getNoChkQuestions);
   // 所有已审核的题目
-  router.get('/getAllChkQuestions', controller.admin.getAllChkQuestions);
+  router.post('/getAllChkQuestions', controller.admin.getAllChkQuestions);
   // 审核题目
   router.post('/chkQuestions', controller.admin.chkQuestions);
   // 删除题目
@@ -38,9 +38,9 @@ export default (app: Application) => {
   // 试卷审核
   router.post('/chkPaper', controller.admin.chkPaper);
   // 所有未审核的试卷
-  router.get('/getNoChkPaper', controller.admin.getNoChkPaper);
+  router.post('/getNoChkPaper', controller.admin.getNoChkPaper);
   // 所有已审核的试卷
-  router.get('/getAllChkPaper', controller.admin.getAllChkPaper);
+  router.post('/getAllChkPaper', controller.admin.getAllChkPaper);
   // 删除试卷
   router.post('/deletePaper', controller.admin.deletePaper);
   // 删除用户

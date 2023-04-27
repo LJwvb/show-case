@@ -51,7 +51,7 @@ export default class admin extends Controller {
   // 获取未审核题目
   public async getNoChkQuestions() {
     const { ctx } = this;
-    const result = await ctx.service.admin.getNoChkQuestions();
+    const result = await ctx.service.admin.getNoChkQuestions(ctx.request.body);
     if (result) {
       ctx.success(result, '请求成功');
     } else {
@@ -126,7 +126,7 @@ export default class admin extends Controller {
   // 所有未审核的试卷
   public async getNoChkPaper() {
     const { ctx } = this;
-    const result = await ctx.service.admin.getNoChkPaper();
+    const result = await ctx.service.admin.getNoChkPaper(ctx.request.body);
     if (result) {
       ctx.success(result, '请求成功');
     } else {
@@ -136,7 +136,7 @@ export default class admin extends Controller {
   // 所有已审核的试卷
   public async getAllChkPaper() {
     const { ctx } = this;
-    const result = await ctx.service.admin.getAllChkPaper();
+    const result = await ctx.service.admin.getAllChkPaper(ctx.request.body);
     if (result) {
       ctx.success(result, '请求成功');
     } else {

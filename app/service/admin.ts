@@ -63,17 +63,21 @@ export default class admin extends Service {
     try {
       const user = await app.mysql.select('user');
       const admin = await app.mysql.select('admin');
-      return [...admin, ...user];
+      return [ ...admin, ...user ];
     } catch (err) {
       return null;
     }
   }
   // 所有未审核的题目
-  public async getNoChkQuestions() {
+  public async getNoChkQuestions(params) {
     const { app } = this;
+    const { currentPage, pageSize } = params;
+
     try {
       const result = await app.mysql.select('questions', {
         where: { chkState: 0 },
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
       });
       // 获取所有未审核题目总数
       const count = await app.mysql.query(
@@ -87,15 +91,20 @@ export default class admin extends Service {
   // 所有已审核的题目
   public async getAllChkQuestions(params) {
     const { app } = this;
-    const { pageNo, pageSize } = params;
+    const { currentPage, pageSize } = params;
+    console.log(params);
 
     try {
       const result = await app.mysql.select('questions', {
         where: { chkState: 1 },
         limit: pageSize,
-        offset: (pageNo - 1) * pageSize,
+        offset: (currentPage - 1) * pageSize,
       });
-      return result;
+      // 获取所有已审核题目总数
+      const count = await app.mysql.query(
+        'select count(*) as count from questions where chkState = 1'
+      );
+      return { result, total: count[0].count };
     } catch (err) {
       return null;
     }
@@ -166,28 +175,39 @@ export default class admin extends Service {
     }
   }
   // 所有未审核的试卷
-  public async getNoChkPaper() {
+  public async getNoChkPaper(params) {
     const { app } = this;
+    const { currentPage, pageSize } = params;
     try {
-      const result: any = await app.mysql.query(
-        'select * from examination_paper where chkState = 0'
+      const result: any = await app.mysql.select('examination_paper', {
+        where: { chkState: 0 },
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+      // 获取所有未审核题目总数
+      const count = await app.mysql.query(
+        'select count(*) as count from examination_paper where chkState = 0'
       );
-      return result;
+      return { result, total: count[0].count };
     } catch (err) {
       return null;
     }
   }
   // 所有已审核的试卷
-  public async getAllChkPaper() {
+  public async getAllChkPaper(params) {
     const { app } = this;
-    // const { pageNo, pageSize } = params;
+    const { currentPage, pageSize } = params;
     try {
       const result = await app.mysql.select('examination_paper', {
         where: { chkState: 1 },
-        // limit: pageSize,
-        // offset: (pageNo - 1) * pageSize,
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
       });
-      return result;
+      // 获取所有已审核题目总数
+      const count = await app.mysql.query(
+        'select count(*) as count from examination_paper where chkState = 1'
+      );
+      return { result, total: count[0].count };
     } catch (err) {
       return null;
     }
