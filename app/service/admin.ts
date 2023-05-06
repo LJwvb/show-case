@@ -92,7 +92,6 @@ export default class admin extends Service {
   public async getAllChkQuestions(params) {
     const { app } = this;
     const { currentPage, pageSize } = params;
-    console.log(params);
 
     try {
       const result = await app.mysql.select('questions', {

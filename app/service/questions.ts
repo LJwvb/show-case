@@ -84,7 +84,6 @@ export default class questions extends Service {
           }
         });
 
-
         return {
           result,
           total,
@@ -387,13 +386,14 @@ export default class questions extends Service {
     try {
       // 只有关键字
       if (keyword && !questionType && !difficulty) {
+        // 过滤掉未审核的题目
         const result = await app.mysql.query(
-          `select * from questions where question like '%${keyword}%' limit ${pageSize} offset ${
+          `select * from questions where question like '%${keyword}%' and chkState = 1 limit ${pageSize} offset ${
             (currentPage - 1) * pageSize
           }`,
         );
         const total = await app.mysql.query(
-          `select count(*) from questions where question like '%${keyword}%'`,
+          `select count(*) from questions where question like '%${keyword}%' and chkState = 1`,
         );
         return {
           result,
@@ -403,12 +403,12 @@ export default class questions extends Service {
       // 只有题型
       if (!keyword && questionType && !difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where questionType = '${questionType}' limit ${pageSize} offset ${
+          `select * from questions where questionType = '${questionType}' and chkState = 1 limit ${pageSize} offset ${
             (currentPage - 1) * pageSize
           }`,
         );
         const total = await app.mysql.query(
-          `select count(*) from questions where questionType = '${questionType}'`,
+          `select count(*) from questions where questionType = '${questionType}' and chkState = 1`,
         );
         return {
           result,
@@ -418,12 +418,12 @@ export default class questions extends Service {
       // 只有难度
       if (!keyword && !questionType && difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where difficulty = '${difficulty}' limit ${pageSize} offset ${
+          `select * from questions where difficulty = '${difficulty}' and chkState = 1 limit ${pageSize} offset ${
             (currentPage - 1) * pageSize
           }`,
         );
         const total = await app.mysql.query(
-          `select count(*) from questions where difficulty = '${difficulty}'`,
+          `select count(*) from questions where difficulty = '${difficulty}' and chkState = 1`,
         );
         return {
           result,
@@ -433,12 +433,12 @@ export default class questions extends Service {
       // 题型和难度
       if (!keyword && questionType && difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where questionType = '${questionType}' and difficulty = '${difficulty}' limit ${pageSize} offset ${
+          `select * from questions where questionType = '${questionType}' and difficulty = '${difficulty}' and chkState = 1 limit ${pageSize} offset ${
             (currentPage - 1) * pageSize
           }`,
         );
         const total = await app.mysql.query(
-          `select count(*) from questions where questionType = '${questionType}' and difficulty = '${difficulty}'`,
+          `select count(*) from questions where questionType = '${questionType}' and difficulty = '${difficulty}' and chkState = 1`,
         );
         return {
           result,
@@ -448,12 +448,12 @@ export default class questions extends Service {
       // 关键字和题型
       if (keyword && questionType && !difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}' limit ${pageSize} offset ${
+          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}' and chkState = 1 limit ${pageSize} offset ${
             (currentPage - 1) * pageSize
           }`,
         );
         const total = await app.mysql.query(
-          `select count(*) from questions where question like '%${keyword}%' and questionType = '${questionType}'`,
+          `select count(*) from questions where question like '%${keyword}%' and questionType = '${questionType}' and chkState = 1`,
         );
         return {
           result,
@@ -463,12 +463,12 @@ export default class questions extends Service {
       // 关键字和难度
       if (keyword && !questionType && difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where question like '%${keyword}%' and difficulty = '${difficulty}' limit ${pageSize} offset ${
+          `select * from questions where question like '%${keyword}%' and difficulty = '${difficulty}' and chkState = 1 limit ${pageSize} offset ${
             (currentPage - 1) * pageSize
           }`,
         );
         const total = await app.mysql.query(
-          `select count(*) from questions where question like '%${keyword}%' and difficulty = '${difficulty}'`,
+          `select count(*) from questions where question like '%${keyword}%' and difficulty = '${difficulty}' and chkState = 1`,
         );
         return {
           result,
@@ -478,12 +478,12 @@ export default class questions extends Service {
       // 题型和难度和关键字
       if (keyword && questionType && difficulty) {
         const result = await app.mysql.query(
-          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}' and difficulty = '${difficulty}' limit ${pageSize} offset ${
+          `select * from questions where question like '%${keyword}%' and questionType = '${questionType}' and difficulty = '${difficulty}' and chkState = 1 limit ${pageSize} offset ${
             (currentPage - 1) * pageSize
           }`,
         );
         const total = await app.mysql.query(
-          `select count(*) from questions where question like '%${keyword}%' and questionType = '${questionType}' and difficulty = '${difficulty}'`,
+          `select count(*) from questions where question like '%${keyword}%' and questionType = '${questionType}' and difficulty = '${difficulty}' and chkState = 1 `,
         );
         return {
           result,
